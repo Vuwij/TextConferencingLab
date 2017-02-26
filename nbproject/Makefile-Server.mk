@@ -23,7 +23,7 @@ AS=as
 # Macros
 CND_PLATFORM=GNU-MacOSX
 CND_DLIB_EXT=dylib
-CND_CONF=Release
+CND_CONF=Server
 CND_DISTDIR=dist
 CND_BUILDDIR=build
 
@@ -35,7 +35,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/main.o
+	${OBJECTDIR}/src/client/client.o \
+	${OBJECTDIR}/src/client/client_input.o \
+	${OBJECTDIR}/src/server/server.o
 
 
 # C Compiler Flags
@@ -62,10 +64,20 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/main.o: main.c 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/src/client/client.o: src/client/client.c 
+	${MKDIR} -p ${OBJECTDIR}/src/client
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/client.o src/client/client.c
+
+${OBJECTDIR}/src/client/client_input.o: src/client/client_input.c 
+	${MKDIR} -p ${OBJECTDIR}/src/client
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/client_input.o src/client/client_input.c
+
+${OBJECTDIR}/src/server/server.o: src/server/server.c 
+	${MKDIR} -p ${OBJECTDIR}/src/server
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/server/server.o src/server/server.c
 
 # Subprojects
 .build-subprojects:

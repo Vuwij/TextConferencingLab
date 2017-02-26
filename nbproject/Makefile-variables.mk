@@ -6,22 +6,22 @@
 CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
-# Debug configuration
-CND_PLATFORM_Debug=GNU-MacOSX
-CND_ARTIFACT_DIR_Debug=dist/Debug/GNU-MacOSX
-CND_ARTIFACT_NAME_Debug=textconferencinglab
-CND_ARTIFACT_PATH_Debug=dist/Debug/GNU-MacOSX/textconferencinglab
-CND_PACKAGE_DIR_Debug=dist/Debug/GNU-MacOSX/package
-CND_PACKAGE_NAME_Debug=textconferencinglab.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/GNU-MacOSX/package/textconferencinglab.tar
-# Release configuration
-CND_PLATFORM_Release=GNU-MacOSX
-CND_ARTIFACT_DIR_Release=dist/Release/GNU-MacOSX
-CND_ARTIFACT_NAME_Release=textconferencinglab
-CND_ARTIFACT_PATH_Release=dist/Release/GNU-MacOSX/textconferencinglab
-CND_PACKAGE_DIR_Release=dist/Release/GNU-MacOSX/package
-CND_PACKAGE_NAME_Release=textconferencinglab.tar
-CND_PACKAGE_PATH_Release=dist/Release/GNU-MacOSX/package/textconferencinglab.tar
+# Client configuration
+CND_PLATFORM_Client=GNU-MacOSX
+CND_ARTIFACT_DIR_Client=dist/Client/GNU-MacOSX
+CND_ARTIFACT_NAME_Client=textconferencinglab
+CND_ARTIFACT_PATH_Client=dist/Client/GNU-MacOSX/textconferencinglab
+CND_PACKAGE_DIR_Client=dist/Client/GNU-MacOSX/package
+CND_PACKAGE_NAME_Client=textconferencinglab.tar
+CND_PACKAGE_PATH_Client=dist/Client/GNU-MacOSX/package/textconferencinglab.tar
+# Server configuration
+CND_PLATFORM_Server=GNU-MacOSX
+CND_ARTIFACT_DIR_Server=dist/Server/GNU-MacOSX
+CND_ARTIFACT_NAME_Server=textconferencinglab
+CND_ARTIFACT_PATH_Server=dist/Server/GNU-MacOSX/textconferencinglab
+CND_PACKAGE_DIR_Server=dist/Server/GNU-MacOSX/package
+CND_PACKAGE_NAME_Server=textconferencinglab.tar
+CND_PACKAGE_PATH_Server=dist/Server/GNU-MacOSX/package/textconferencinglab.tar
 #
 # include compiler specific variables
 #

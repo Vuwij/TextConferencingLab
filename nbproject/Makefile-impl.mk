@@ -27,11 +27,11 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 PROJECTNAME=TextConferencingLab
 
 # Active Configuration
-DEFAULTCONF=Debug
+DEFAULTCONF=Client
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=Debug Release 
+ALLCONFS=Client Server 
 
 
 # build
