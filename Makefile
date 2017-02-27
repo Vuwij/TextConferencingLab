@@ -12,10 +12,10 @@ default: .create_dir .server .client
 	mkdir -p $(CLIENT) && mkdir -p $(SERVER)
 
 .client:
-	gcc -o $(CLIENT)/client src/client/*.c
+	gcc -o $(CLIENT)/client src/*.c src/client/*.c
 
 .server:
-	gcc -o $(SERVER)/server src/server/*.c
+	gcc -o $(SERVER)/server src/*.c src/server/*.c
 
 
 # include project implementation makefile

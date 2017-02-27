@@ -1,7 +1,7 @@
 #ifndef PACKET_TYPE_H
 #define	PACKET_TYPE_H
 
-enum control_packet_t {
+typedef enum {
     LOGIN = 0,
     LO_ACK = 1,
     LO_NACK = 2,
@@ -15,7 +15,7 @@ enum control_packet_t {
     MESSAGE = 10,
     QUERY = 11,
     QU_ACK = 12
-};
+}control_packet_t;
 
 #endif	/* PACKET_TYPE_H */
 

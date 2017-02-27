@@ -4,16 +4,19 @@
 #include "../constants.h"
 #include "../message.h"
 #include "../packet_type.h"
+#include "status.h"
+
+extern Status status;
 
 void login(int client_id, char* password, char* server_ip, int server_port);
 
 void logout();
 
-void join_session(int session_id);
+void join_session(unsigned session_id);
 
 void leave_session();
 
-void create_session(int session_id);
+void create_session(unsigned session_id);
 
 void list();
 

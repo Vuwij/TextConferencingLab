@@ -36,8 +36,12 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/src/client/client.o \
-	${OBJECTDIR}/src/client/client_input.o \
-	${OBJECTDIR}/src/server/server.o
+	${OBJECTDIR}/src/client/client_command.o \
+	${OBJECTDIR}/src/message.o \
+	${OBJECTDIR}/src/server/message_handle.o \
+	${OBJECTDIR}/src/server/server.o \
+	${OBJECTDIR}/src/server/session_list.o \
+	${OBJECTDIR}/src/server/user_list.o
 
 
 # C Compiler Flags
@@ -69,15 +73,35 @@ ${OBJECTDIR}/src/client/client.o: src/client/client.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/client.o src/client/client.c
 
-${OBJECTDIR}/src/client/client_input.o: src/client/client_input.c 
+${OBJECTDIR}/src/client/client_command.o: src/client/client_command.c 
 	${MKDIR} -p ${OBJECTDIR}/src/client
 	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/client_input.o src/client/client_input.c
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/client_command.o src/client/client_command.c
+
+${OBJECTDIR}/src/message.o: src/message.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/message.o src/message.c
+
+${OBJECTDIR}/src/server/message_handle.o: src/server/message_handle.c 
+	${MKDIR} -p ${OBJECTDIR}/src/server
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/server/message_handle.o src/server/message_handle.c
 
 ${OBJECTDIR}/src/server/server.o: src/server/server.c 
 	${MKDIR} -p ${OBJECTDIR}/src/server
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/server/server.o src/server/server.c
+
+${OBJECTDIR}/src/server/session_list.o: src/server/session_list.c 
+	${MKDIR} -p ${OBJECTDIR}/src/server
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/server/session_list.o src/server/session_list.c
+
+${OBJECTDIR}/src/server/user_list.o: src/server/user_list.c 
+	${MKDIR} -p ${OBJECTDIR}/src/server
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/server/user_list.o src/server/user_list.c
 
 # Subprojects
 .build-subprojects:

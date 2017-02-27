@@ -5,6 +5,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
@@ -15,6 +17,13 @@
 #include "server.h"
 
 int port;
+
+void *get_in_addr(struct sockaddr *sa) {
+    if (sa->sa_family == AF_INET) {
+        return &(((struct sockaddr_in*)sa)->sin_addr);
+    }
+    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
 
 void usage(char *program) {
     fprintf(stderr, "Usage: %s <TCP port number to listen on>\n", program);
@@ -63,6 +72,82 @@ int open_server_socket(struct addrinfo **p, char* argv[]) {
     return sockfd;
 }
 
+struct timeval tv = {
+    .tv_sec = 1,
+    .tv_usec = SERVER_NACK_TIMEOUT,
+};
+
+void listen_for_messages(int listener, struct addrinfo *p) {
+    fd_set master;                      // master file descriptor list
+    fd_set read_fds;                    // temp file descriptor list for select()
+    FD_ZERO(&master);
+    FD_ZERO(&read_fds);
+    FD_SET(listener, &master);          // add the listener to the master set
+    
+    int fdmax = listener;               // keep track of the biggest file descriptor
+    
+    struct sockaddr_storage remoteaddr; // client address
+    char remoteIP[INET6_ADDRSTRLEN];
+    
+    char buf[MAXBUFSIZE];                      // buffer for client data
+    int nbytes;
+    
+    // main loop
+    printf("Waiting for Client Connections\n");
+    for(;;) {
+        // Copy the master to the temporary FD
+        read_fds = master;
+        if (select(fdmax+1, &read_fds, NULL, NULL, &tv) == -1) {
+            perror("select");
+            exit(4);
+        }
+        
+        // run through the existing connections looking for data to read
+        for(int i = 0; i <= fdmax; i++) {
+            if (FD_ISSET(i, &read_fds)) { // we got one!!
+                // New Connections
+                if (i == listener) { 
+                    socklen_t addrlen = sizeof remoteaddr;
+                    int newfd = accept(listener,
+                        (struct sockaddr *)&remoteaddr,
+                        &addrlen);
+                    
+                    if (newfd == -1) {
+                        perror("accept");
+                    } else {
+                        FD_SET(newfd, &master); // add to master set
+                        if (newfd > fdmax) fdmax = newfd;
+                        
+                        printf("selectserver: new connection from %s on socket %d\n",
+                            inet_ntop(remoteaddr.ss_family,
+                                get_in_addr((struct sockaddr*)&remoteaddr),
+                                remoteIP, INET6_ADDRSTRLEN
+                                ),
+                            newfd
+                        );
+                    }
+                } else {
+                    // TODO: move to a new function
+                    if ((nbytes = recv(i, buf, sizeof buf, 0)) <= 0) {
+                        // got error or connection closed by client
+                        if (nbytes == 0) printf("selectserver: socket %d hung up\n", i);
+                        else perror("recv");
+                        
+                        close(i); // bye!
+                        FD_CLR(i, &master);// remove from master set
+                    } 
+                    // Actually get the message
+                    else {
+                        handle_client_message(buf, i);
+                        // we got some data from a client
+                        
+                    }
+                } // END handle data from client
+            } // END got new incoming connection
+        } // END looping through file descriptors
+    } // END for(;;)   
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) usage(argv[0]);
 
@@ -77,6 +162,9 @@ int main(int argc, char *argv[]) {
     int sockfd;
     struct addrinfo *p;
     sockfd = open_server_socket(&p, argv);
+    
+    // The main iteration loop
+    listen_for_messages(sockfd, p);
     
     close(sockfd);
     return 0;

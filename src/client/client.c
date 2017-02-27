@@ -43,17 +43,16 @@ int main(int argc, char *argv[]) {
     char server_ip[MAXBUFSIZE];
     int server_port;
     int client_id;
-    char* password;
+    char password[MAXBUFSIZE];
     int session_id;
     
     // The main parse loop
-    char input[MAXBUFSIZE];
-    char* command;
+    char input[100];
+    char command[MAXBUFSIZE];
    
-    while (fgets(input, sizeof(input), stdin) != NULL) {
+    while (fgets(input, 100, stdin) != NULL) {
         // Login
         if (sscanf(input, "%s %d %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {;
-            printf("s\n");
             if(strcmp(command, "/login") != 0) {
                 input_usage();
                 continue;
@@ -79,6 +78,7 @@ int main(int argc, char *argv[]) {
                     continue;
                 }
                 join_session(session_id);
+                in_session = true;
             }
             else if(strcmp(command, "/createsession") == 0) {
                 if(!logged_in) {
@@ -110,7 +110,6 @@ int main(int argc, char *argv[]) {
                 logged_in = false;
             }
             else if(strcmp(command, "/leavesession") == 0) {
-                printf("Hello\n");
                 if(!logged_in) {
                     printf("Not logged into any server\n");
                     continue;

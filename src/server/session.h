@@ -1,0 +1,16 @@
+#ifndef SESSION_H
+#define	SESSION_H
+
+#include <sys/types.h>
+
+#include "user.h"
+#include "../constants.h"
+
+typedef struct session {
+    int id;
+    fd_set ports;
+    User* users[MAX_USERS_PER_SESSION];
+}Session;
+
+#endif	/* SESSION_H */
+

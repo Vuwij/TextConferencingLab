@@ -5,10 +5,12 @@
 #include "../message.h"
 #include "../packet_type.h"
 
-#include "users.h"
+#include "user.h"
 
 // The preinitialized list of users
-extern struct user user_list[];
+extern User user_list[];
+
+void handle_client_message(char* message, int fd);
 
 #endif	/* SERVER_H */
 

@@ -63,8 +63,9 @@
           <runcommandpicklistitem>bu</runcommandpicklistitem>
           <runcommandpicklistitem>server</runcommandpicklistitem>
           <runcommandpicklistitem>./server</runcommandpicklistitem>
+          <runcommandpicklistitem>./server 5000</runcommandpicklistitem>
         </runcommandpicklist>
-        <runcommand>./server</runcommand>
+        <runcommand>./server 5000</runcommand>
         <rundir>build/Server/</rundir>
         <buildfirst>true</buildfirst>
         <terminal-type>0</terminal-type>
