@@ -5,3 +5,4 @@
 #
 # Client configuration
 # Server configuration
+# AutoTester configuration

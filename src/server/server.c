@@ -5,10 +5,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <netinet/in.h>
 #include <netdb.h>
+#include <sys/time.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -30,8 +29,8 @@ void usage(char *program) {
     exit(1);
 }
 
-int open_server_socket(struct addrinfo **p, char* argv[]) {
-    struct addrinfo hints, *servinfo;
+int open_server_socket(AddrInfo **p, char* argv[]) {
+    AddrInfo hints, *servinfo;
     int sockfd;
     int rv;
     
@@ -77,7 +76,7 @@ struct timeval tv = {
     .tv_usec = SERVER_NACK_TIMEOUT,
 };
 
-void listen_for_messages(int listener, struct addrinfo *p) {
+void listen_for_messages(int listener, AddrInfo *p) {
     fd_set master;                      // master file descriptor list
     fd_set read_fds;                    // temp file descriptor list for select()
     FD_ZERO(&master);
@@ -93,7 +92,7 @@ void listen_for_messages(int listener, struct addrinfo *p) {
     int nbytes;
     
     // main loop
-    printf("Waiting for Client Connections\n");
+    PRINT("Waiting for Clients\n");
     for(;;) {
         // Copy the master to the temporary FD
         read_fds = master;
@@ -150,7 +149,8 @@ void listen_for_messages(int listener, struct addrinfo *p) {
 
 int main(int argc, char *argv[]) {
     if (argc != 2) usage(argv[0]);
-
+    PRINT("Started\n");
+    
     // Obtain the Port Number
     port = atoi(argv[1]);
     if (!(0 <= port && port <= 65535)) {
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
     
     // Open a server side socket
     int sockfd;
-    struct addrinfo *p;
+    AddrInfo *p;
     sockfd = open_server_socket(&p, argv);
     
     // The main iteration loop

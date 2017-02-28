@@ -1,6 +1,8 @@
 #ifndef USER_LIST
 #define	USER_LIST
 
+#include <stdbool.h>
+
 #include "user.h"
 
 typedef struct user_list {
@@ -10,9 +12,6 @@ typedef struct user_list {
     int port_address;
     struct user_list *next;
 } User_List;
-
-extern User_List online_users;
-extern User registered_users[];
 
 bool authenticate_existing_user(int id, char* password);
 

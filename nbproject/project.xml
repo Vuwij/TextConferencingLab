@@ -21,6 +21,10 @@
                     <name>Server</name>
                     <type>1</type>
                 </confElem>
+                <confElem>
+                    <name>AutoTester</name>
+                    <type>1</type>
+                </confElem>
             </confList>
             <formatting>
                 <project-formatting-style>false</project-formatting-style>

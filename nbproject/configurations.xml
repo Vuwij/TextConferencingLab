@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="95">
+<configurationDescriptor version="97">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -25,7 +25,6 @@
         <itemPath>src/server/message_handle.c</itemPath>
         <itemPath>src/server/server.c</itemPath>
         <itemPath>src/server/server.h</itemPath>
-        <itemPath>src/session.h</itemPath>
         <itemPath>src/server/session.h</itemPath>
         <itemPath>src/server/session_list.c</itemPath>
         <itemPath>src/server/session_list.h</itemPath>
@@ -34,6 +33,7 @@
         <itemPath>src/server/user_list.h</itemPath>
       </logicalFolder>
       <itemPath>src/message.c</itemPath>
+      <itemPath>src/print_debug.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -45,7 +45,7 @@
                    projectFiles="false"
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
-      <itemPath>../FileTransferLab/autotester.sh</itemPath>
+      <itemPath>autotester.sh</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -60,6 +60,9 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <cTool>
+          <commandLine>-cstd=c11</commandLine>
+        </cTool>
       </compileType>
       <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -76,6 +79,8 @@
       <item path="src/message.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -95,10 +100,56 @@
       </item>
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/session.h" ex="false" tool="3" flavor2="0">
-      </item>
     </conf>
     <conf name="Server" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <commandLine>-cstd=c11</commandLine>
+        </cTool>
+      </compileType>
+      <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client_command.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/status.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/constants.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/message.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/message.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/session_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="AutoTester" type="1">
       <toolsSet>
         <compilerSet>default</compilerSet>
         <dependencyChecking>true</dependencyChecking>
@@ -122,6 +173,8 @@
       </item>
       <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
@@ -139,8 +192,6 @@
       <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="src/session.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

@@ -1,7 +1,7 @@
 #ifndef SESSION_H
 #define	SESSION_H
 
-#include <sys/types.h>
+#include <sys/time.h>
 
 #include "user.h"
 #include "../constants.h"
@@ -13,4 +13,3 @@ typedef struct session {
 }Session;
 
 #endif	/* SESSION_H */
-

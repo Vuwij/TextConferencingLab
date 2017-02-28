@@ -23,7 +23,7 @@ AS=as
 # Macros
 CND_PLATFORM=GNU-Linux
 CND_DLIB_EXT=so
-CND_CONF=Server
+CND_CONF=AutoTester
 CND_DISTDIR=dist
 CND_BUILDDIR=build
 
@@ -46,7 +46,7 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=-cstd=c11
+CFLAGS=
 
 # CC Compiler Flags
 CCFLAGS=

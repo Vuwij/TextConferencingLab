@@ -13,10 +13,12 @@
 #include <time.h>
 #include <assert.h>
 #include <stdbool.h>
+
 #include "client.h"
+#include "../constants.h" 
 
 void usage(char *program) {
-    fprintf(stderr, "Usage: %s\n", program);
+    fprintf(stderr, "Usage: %s (print source id)\n", program);
     exit(1);
 }
 
@@ -33,7 +35,9 @@ void input_usage() {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 1) usage(argv[0]);
+    if (argc > 2) usage(argv[0]);
+    if (argc == 2) print_src = (PRINT_SRC) atoi(argv[1]);
+    PRINT("Started\n");
     
     // Status of the client
     bool logged_in;

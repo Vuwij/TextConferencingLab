@@ -1,6 +1,9 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include <stdio.h>
+#include <stdarg.h>
+
 #define PRINT_PACKETS           1       // For testing file
 
 #define MAXBUFSIZE              20      // For string length
@@ -12,7 +15,24 @@
 #define MAX_USERS_PER_SESSION   100
 #define SERVER_NACK_TIMEOUT     15000
 
+// Debugging Print Section
+
 #define DEBUG                   1
+
+typedef enum {
+    SERVER = 0,
+    CLIENT1 = 1,
+    CLIENT2 = 2,
+    CLIENT3 = 3,
+    CLIENT4 = 4
+} PRINT_SRC;
+
+extern PRINT_SRC print_src;
+
+#define PRINT(fmt, ...) \
+            do { if (DEBUG) print_debug(fmt); } while (0)
+
+void print_debug(const char * pString, ...);
 
 #endif
 
