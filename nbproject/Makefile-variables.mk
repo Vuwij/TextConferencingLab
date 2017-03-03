@@ -7,13 +7,13 @@ CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
 # Client configuration
-CND_PLATFORM_Client=GNU-MacOSX
-CND_ARTIFACT_DIR_Client=dist/Client/GNU-MacOSX
+CND_PLATFORM_Client=GNU-Linux
+CND_ARTIFACT_DIR_Client=dist/Client/GNU-Linux
 CND_ARTIFACT_NAME_Client=textconferencinglab
-CND_ARTIFACT_PATH_Client=dist/Client/GNU-MacOSX/textconferencinglab
-CND_PACKAGE_DIR_Client=dist/Client/GNU-MacOSX/package
+CND_ARTIFACT_PATH_Client=dist/Client/GNU-Linux/textconferencinglab
+CND_PACKAGE_DIR_Client=dist/Client/GNU-Linux/package
 CND_PACKAGE_NAME_Client=textconferencinglab.tar
-CND_PACKAGE_PATH_Client=dist/Client/GNU-MacOSX/package/textconferencinglab.tar
+CND_PACKAGE_PATH_Client=dist/Client/GNU-Linux/package/textconferencinglab.tar
 # Server configuration
 CND_PLATFORM_Server=GNU-Linux
 CND_ARTIFACT_DIR_Server=dist/Server/GNU-Linux

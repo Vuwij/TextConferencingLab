@@ -8,21 +8,21 @@
 
 extern Status status;
 
-void login(int client_id, char* password, char* server_ip, int server_port);
+bool login(int client_id, char* password, char* server_ip, int server_port);
 
-void logout();
+bool logout();
 
-void join_session(unsigned session_id);
+bool join_session(unsigned session_id);
 
-void leave_session();
+bool leave_session();
 
-void create_session(unsigned session_id);
+bool create_session(unsigned session_id);
 
-void list();
+bool list();
 
-void quit();
+bool quit();
 
-void send_message(char* message);
+bool send_message(char* message);
 
 #endif	/* CLIENT_H */
 

@@ -12,6 +12,10 @@
 
 typedef struct addrinfo AddrInfo;
 
+extern int sockfd;
+extern int PORT;
+extern AddrInfo *p;
+
 // The list of online ussers
 extern User_List online_users;
 

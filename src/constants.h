@@ -29,10 +29,7 @@ typedef enum {
 
 extern PRINT_SRC print_src;
 
-#define PRINT(fmt, ...) \
-            do { if (DEBUG) print_debug(fmt); } while (0)
-
-void print_debug(const char * pString, ...);
+void PRINT(const char * pString, ...);
 
 #endif
 

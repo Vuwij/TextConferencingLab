@@ -13,7 +13,8 @@ User_List online_users;
 User registered_users[] = { 
     {1, "User 1"}, 
     {2, "User 2"},
-    {3, "User 3"}
+    {3, "User 3"},
+    {4, "User 4"}
 };
 
 bool authenticate_existing_user(int id, char* password) {

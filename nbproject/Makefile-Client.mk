@@ -21,8 +21,8 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=GNU-MacOSX
-CND_DLIB_EXT=dylib
+CND_PLATFORM=GNU-Linux
+CND_DLIB_EXT=so
 CND_CONF=Client
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -38,6 +38,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/client/client.o \
 	${OBJECTDIR}/src/client/client_command.o \
 	${OBJECTDIR}/src/message.o \
+	${OBJECTDIR}/src/print_debug.o \
 	${OBJECTDIR}/src/server/message_handle.o \
 	${OBJECTDIR}/src/server/server.o \
 	${OBJECTDIR}/src/server/session_list.o \
@@ -45,7 +46,7 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=
+CFLAGS=-cstd=c11
 
 # CC Compiler Flags
 CCFLAGS=
@@ -82,6 +83,11 @@ ${OBJECTDIR}/src/message.o: src/message.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/message.o src/message.c
+
+${OBJECTDIR}/src/print_debug.o: src/print_debug.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/print_debug.o src/print_debug.c
 
 ${OBJECTDIR}/src/server/message_handle.o: src/server/message_handle.c 
 	${MKDIR} -p ${OBJECTDIR}/src/server

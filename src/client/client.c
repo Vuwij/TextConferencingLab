@@ -23,15 +23,15 @@ void usage(char *program) {
 }
 
 void input_usage() {
-    printf("Invalid Entry, possible usages listed\n");
-    printf("  /login <client ID> <password> <server-IP> <server-port>\n");
-    printf("  /logout\n");
-    printf("  /joinsession <session ID>\n");
-    printf("  /leavesession\n");
-    printf("  /createsession <session ID>\n");
-    printf("  /list\n");
-    printf("  /quit\n");
-    printf("  <text>\n");
+    PRINT("Invalid Entry, possible usages listed\n");
+    PRINT("  /login <client ID> <password> <server-IP> <server-port>\n");
+    PRINT("  /logout\n");
+    PRINT("  /joinsession <session ID>\n");
+    PRINT("  /leavesession\n");
+    PRINT("  /createsession <session ID>\n");
+    PRINT("  /list\n");
+    PRINT("  /quit\n");
+    PRINT("  <text>\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -61,36 +61,34 @@ int main(int argc, char *argv[]) {
                 input_usage();
                 continue;
             }
-            printf("s\n");
             if(logged_in) {
-                printf("Already logged into a session\n");
+                PRINT("Already logged into a session\n");
                 continue;
             }
-
-            login(client_id, password, server_ip, server_port);
-            logged_in = true;
+            bool success = login(client_id, password, server_ip, server_port);
+            if(success) logged_in = true;
         }
         // Create and Join Session
         else if (sscanf(input, "%s %d", command, &session_id) == 2) {
             if(strcmp(command, "/joinsession") == 0) {
                 if(!logged_in) {
-                    printf("Not logged into any server\n");
+                    PRINT("Not logged into any server\n");
                     continue;
                 }
                 if(in_session) {
-                    printf("Already in session\n");
+                    PRINT("Already in session\n");
                     continue;
                 }
-                join_session(session_id);
-                in_session = true;
+                bool success = join_session(session_id);
+                if(success) in_session = true;
             }
             else if(strcmp(command, "/createsession") == 0) {
                 if(!logged_in) {
-                    printf("Not logged into any server\n");
+                    PRINT("Not logged into any server\n");
                     continue;
                 }
                 if(in_session) {
-                    printf("Already in session\n");
+                    PRINT("Already in session\n");
                     continue;
                 }
                 create_session(session_id);
@@ -103,23 +101,24 @@ int main(int argc, char *argv[]) {
         else if (sscanf(input, "%s", command) == 1) {
             if(strcmp(command, "/logout") == 0) {
                 if(!logged_in) {
-                    printf("Not logged into any server\n");
+                    PRINT("Not logged into any server\n");
                     continue;
                 }
                 if(in_session) {
-                    leave_session();
-                    in_session = false;
+                    bool success = leave_session();
+                    if(success) in_session = false;
+                    else continue;
                 }
-                logout();
-                logged_in = false;
+                bool success = logout();
+                if(success) logged_in = false;
             }
             else if(strcmp(command, "/leavesession") == 0) {
                 if(!logged_in) {
-                    printf("Not logged into any server\n");
+                    PRINT("Not logged into any server\n");
                     continue;
                 }
                 if(!in_session) {
-                    printf("Not entered into any session\n");
+                    PRINT("Not entered into any session\n");
                     continue;
                 }
                 leave_session();
@@ -127,19 +126,21 @@ int main(int argc, char *argv[]) {
             }
             else if(strcmp(command, "/list") == 0) {
                 if(!logged_in) {
-                    printf("Not logged into any server\n");
+                    PRINT("Not logged into any server\n");
                     continue;
                 }
                 list();
             }
             else if(strcmp(command, "/quit") == 0) {
                 if(in_session) {
-                    leave_session();
-                    in_session = false;
+                    bool success = leave_session();
+                    if(success) in_session = false;
+                    else continue;
                 }
                 if(logged_in) {
-                    logout();
-                    logged_in = false;
+                    bool success = logout();
+                    if(success) logged_in = false;
+                    else continue;
                 }
                 quit();
             }
