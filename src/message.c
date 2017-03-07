@@ -1,5 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #include "message.h"
 #include "constants.h"
@@ -8,7 +17,7 @@
 
 #define INT_STRING_LEN 10
 
-const char* serialize_message(Message* message) {
+char* serialize_message(Message* message) {
     int message_t_size = INT_STRING_LEN;
     int message_s_size = INT_STRING_LEN;
     int message_src_size = sizeof(message->source); 
@@ -18,6 +27,7 @@ const char* serialize_message(Message* message) {
     sprintf(message_t_str, "%d", (int) message->type);
 
     char size_str[message_s_size];
+    message->size = sizeof(message->data);
     sprintf(size_str, "%d", message->size);
     
     char* packet = (char *) malloc(message_t_size + message_s_size + message_src_size + message_data_size);
@@ -57,4 +67,38 @@ Message deserialize_message(char* buf, int size) {
     memcpy(m.data, buf + i, m.size);
     
     return m;
+}
+
+int deliver_message(Message* message, int sockfd) {
+    message->size = sizeof(message->data);
+    
+    if(DEBUG_MSG) print_message(message);
+    
+    int numbytes = 0;
+    if ((numbytes = send(sockfd, message, sizeof(Message), 0)) == -1) {
+        perror("client: sendto");
+        exit(1);
+    }
+    return numbytes;
+}
+Message* receive_message(int sockfd) {
+    Message* msg = (Message*) malloc(sizeof(Message));
+    
+    int numbytes;
+    if ((numbytes = recv(sockfd, msg, sizeof(Message), 0)) == -1) {
+        perror("recv");
+        exit(1);
+    }
+    return msg;
+}
+
+void print_message(Message* message) {
+    PRINT("----------------\n");
+    PRINT("TYPE: %d\n", message->type);
+    PRINT("SIZE: %d\n", message->size);
+    PRINT("SRC: %s\n", message->source);
+    PRINT("DATA: %s\n", message->data);
+    //char* s_msg = serialize_message(message);
+    //PRINT("[%s]\n", s_msg);
+    PRINT("----------------\n");
 }

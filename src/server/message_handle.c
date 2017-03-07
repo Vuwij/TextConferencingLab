@@ -7,27 +7,40 @@
 #include "user_list.h"
 #include "session_list.h"
 
-void login(Message* msg) {
-    char* s;
-    sprintf(s, "%s", msg->source);
+void login(Message* msg, int fd) {
+    PRINT("Login Request: %s, %s\n", msg->source, msg->data);
+    char* s = msg->source;
     unsigned id = atoi(s);
     
-    char* pass;
-    sprintf(pass, "%s", msg->data);
+    char* pass = msg->data;
     
     bool valid = authenticate_existing_user(id, pass);
     
     if(valid) {
         // Add the user to the database
-        User user; 
-        user.id = id;
-        user.password = pass;
+        User* user = (User*) malloc(sizeof(User)); 
+        user->id = id;
+        user->password = pass;
         
-        add_user(&user);
+        add_user(user);
+        PRINT("User Valid\n");
+        
+        // Sending LO_ACK
+        Message m;
+        m.type = LO_ACK;
+        deliver_message(&m, fd);
+    }
+    else {
+        PRINT("User Invalid\n");
+        // Sending LO_NACK
+        Message m;
+        m.type = LO_NACK;
+        strcpy(m.data, "Invalid User or Pass\n");
+        deliver_message(&m, fd);
     }
 }
 
-void exitserver(Message* msg) {
+void exitserver(Message* msg, int fd) {
     char* s;
     sprintf(s, "%s", msg->source);
     unsigned id = atoi(s);
@@ -47,7 +60,7 @@ void exitserver(Message* msg) {
         fprintf(stderr, "ERROR: unable to delete user with id %d", id);
 }
 
-void join(Message* msg) {
+void join(Message* msg, int fd) {
     char* s;
     sprintf(s, "%s", msg->source);
     unsigned id = atoi(s);
@@ -76,7 +89,7 @@ void join(Message* msg) {
     add_user_to_session(session, &user->user);
 }
 
-void leave_sess(Message* msg) {
+void leave_sess(Message* msg, int fd) {
     char* s;
     sprintf(s, "%s", msg->source);
     unsigned id = atoi(s);
@@ -108,7 +121,7 @@ void leave_sess(Message* msg) {
     if(session_is_empty(session)) close_session(session->id);
 }
 
-void new_sess(Message* msg) {
+void new_sess(Message* msg, int fd) {
     char* s;
     sprintf(s, "%s", msg->source);
     unsigned id = atoi(s);
@@ -136,30 +149,30 @@ void new_sess(Message* msg) {
     open_session(session_id);
 }
 
-void query(Message* msg) {
+void query(Message* msg, int fd) {
     //print_active_users();
     //print_active_sessions();
     
     // Need to pack the information about users and sessions back to the client
 }
 
-void handle_client_message(char* buf, int fd) {
-    Message msg;
-    msg = deserialize_message(buf, sizeof(buf));
-    
+void handle_client_message(Message* msg, int fd) {
     // Handles the message
-    if(msg.type == LOGIN)
-        login(&msg);
-    else if (msg.type == EXIT)
-        exitserver(&msg);
-    else if (msg.type == JOIN)
-        join(&msg);
-    else if (msg.type == LEAVE_SESS)
-        leave_sess(&msg);
-    else if (msg.type == NEW_SESS)
-        new_sess(&msg);
-    else if (msg.type == QUERY)
-        query(&msg);
+    if(msg->type == CONNECT)
+        return;
+    if(msg->type == LOGIN)
+        login(msg, fd);
+    else if (msg->type == EXIT)
+        exitserver(msg, fd);
+    else if (msg->type == JOIN)
+        join(msg, fd);
+    else if (msg->type == LEAVE_SESS)
+        leave_sess(msg, fd);
+    else if (msg->type == NEW_SESS)
+        new_sess(msg, fd);
+    else if (msg->type == QUERY)
+        query(msg, fd);
     else
-        fprintf(stderr, "Incorrect packet type sent by client. Recieved %d", (int) msg.type);
+        fprintf(stderr, "Incorrect packet type sent by client. Recieved %d", (int) msg->type);
+    return;
 }

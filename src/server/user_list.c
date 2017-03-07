@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
 #include "user_list.h"
+#include "../constants.h"
 
 #define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 
@@ -11,16 +13,16 @@ User_List online_users;
 
 // Global list of registered users
 User registered_users[] = { 
-    {1, "User 1"}, 
-    {2, "User 2"},
-    {3, "User 3"},
-    {4, "User 4"}
+    {1, "User1"}, 
+    {2, "User2"},
+    {3, "User3"},
+    {4, "User4"}
 };
 
 bool authenticate_existing_user(int id, char* password) {
     for(int i = 0; i < NELEMS(registered_users); i++) {
         if(registered_users[i].id == id) {
-            if(registered_users[i].password == password) {
+            if(strcmp(registered_users[i].password, password) == 0) {
                 // Authentication Succeeded, returned L_ACK
                 return true;
             }
@@ -44,11 +46,13 @@ User_List* find_active_user(int id) {
 
 User_List* add_user(User* user) {
     User_List* next = &online_users;
+    
     while(next->next != NULL)
         next = next->next;
     
-    next->next->user = *user;
-    return next->next;
+    next->user = *user;
+    next->next = (User_List*) malloc(sizeof(User_List));
+    return next;
 }
 
 bool delete_user(int id) {

@@ -22,6 +22,6 @@ extern User_List online_users;
 // The lust of registered users
 extern User registered_users[];
 
-void handle_client_message(char* message, int fd);
+void handle_client_message(Message* msg, int fd);
 
 #endif	/* SERVER_H */

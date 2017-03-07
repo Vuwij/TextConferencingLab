@@ -54,7 +54,9 @@ int main(int argc, char *argv[]) {
     char input[100];
     char command[MAXBUFSIZE];
    
-    while (fgets(input, 100, stdin) != NULL) {
+    while (1) {
+        if(fgets(input, 100, stdin) == NULL) continue;
+        
         // Login
         if (sscanf(input, "%s %d %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {;
             if(strcmp(command, "/login") != 0) {

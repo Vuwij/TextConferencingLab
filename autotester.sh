@@ -15,28 +15,14 @@ cd build/Server
 cd ../..
 sleep .5
 
-# Starts the client
-echo ""
+# Starts the clients
+build/Client/client "1" < 'test/c1_input.txt' &
+sleep .01
+#build/Client/client "2" < 'test/c2_input.txt' &
+#sleep .01
+#build/Client/client "3" < 'test/c3_input.txt' &
+#sleep .01
+#build/Client/client "4" < 'test/c4_input.txt' &
+#sleep .01
 
-build/Client/client "1" << 'EOF'
-/login 1 User1 127.0.0.1 5007
-/joinsession 1
-/createsession 1
-EOF
-
-build/Client/client "2" << 'EOF'
-/login 1 User2 127.0.0.1 5007
-/joinsession 1
-EOF
-
-build/Client/client "3" << 'EOF'
-/login 1 User3 127.0.0.1 5007
-/joinsession 2
-/joinsession 1
-EOF
-
-build/Client/client "4" << 'EOF'
-/login 1 User4 127.0.0.1 5007
-/joinsession 1
-Hello team
-EOF
+ sleep 10

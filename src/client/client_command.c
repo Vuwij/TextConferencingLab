@@ -64,16 +64,38 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
     freeaddrinfo(servinfo);
     
+    // Update Status with the client and server socket and port
+    status.sockfd = sockfd;
+    status.p = p;
+    strcpy(status.connected_server_ip, server_ip);
+    status.connected_server_port = server_port;
+    
     // Send a message and get an reply
     PRINT("Connecting to %s\n", s);
-    int numbytes = 0;
-    if ((numbytes = sendto(sockfd, "Hello", sizeof("Hello"), 0,
-            p->ai_addr, p->ai_addrlen)) == -1) {
-        perror("client: sendto");
-        exit(1);
+    Message m;
+    m.type = LOGIN;
+    bzero(m.source, sizeof(m.source));
+    bzero(m.data, sizeof(m.data));
+    sprintf(m.source, "%d", client_id);
+    strcpy(m.data, password);
+    
+    PRINT("Logging In\n");
+    deliver_message(&m, status.sockfd);
+    
+    Message* r;
+    r = receive_message(status.sockfd);
+    
+    if(r->type == LO_ACK) {
+        PRINT("Login Succeeded\n");
+        status.client_id = client_id;
+        strcpy(status.password, password);
+        return true;
+    }
+    if(r->type == LO_NACK) {
+        PRINT("Login Failed: %s\n", r->data);
     }
     
-    return true;
+    return false;
 }
 
 bool logout() {
@@ -90,10 +112,28 @@ bool leave_session() {
 
 bool create_session(unsigned session_id) {
     PRINT("Creating session %d\n", session_id);
+    Message m;
+    m.type = NEW_SESS;
+    sprintf(m.source, "%d", status.client_id);
+    sprintf(m.data, "%d", session_id);
+    
+    deliver_message(&m, status.sockfd);
+    
 }
 
 bool list() {
     PRINT("Listing Sessions\n");
+    Message m;
+    m.type = QUERY;
+    sprintf(m.source, "%d", status.client_id);
+    deliver_message(&m, status.sockfd);
+    
+    Message* r;
+    r = receive_message(status.sockfd);
+    if(r->type == QU_ACK)
+        PRINT(r->data);
+    else
+        PRINT("Invalid packet %d", (int)m.type);
 }
 
 bool quit() {
@@ -102,5 +142,6 @@ bool quit() {
 }
 
 bool send_message(char* message) {
-    
+    PRINT("%s", message);
+    return false;
 }

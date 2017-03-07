@@ -2,19 +2,20 @@
 #define	PACKET_TYPE_H
 
 typedef enum {
-    LOGIN = 0,
-    LO_ACK = 1,
-    LO_NACK = 2,
-    EXIT = 3,
-    JOIN = 4,
-    JN_ACK = 5,
-    JN_NCK = 6,
-    LEAVE_SESS = 7,
-    NEW_SESS = 8,
-    NS_ACK = 9,
-    MESSAGE = 10,
-    QUERY = 11,
-    QU_ACK = 12
+    CONNECT = 0,
+    LOGIN = 1,
+    LO_ACK = 2,
+    LO_NACK = 3,
+    EXIT = 4,
+    JOIN = 5,
+    JN_ACK = 6,
+    JN_NCK = 7,
+    LEAVE_SESS = 8,
+    NEW_SESS = 9,
+    NS_ACK = 10,
+    MESSAGE = 11,
+    QUERY = 12,
+    QU_ACK = 13
 }control_packet_t;
 
 #endif	/* PACKET_TYPE_H */

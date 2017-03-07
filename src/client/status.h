@@ -11,7 +11,7 @@ typedef struct {
     int sockfd;
     struct addrinfo *p;
     
-    int user_id;
+    int client_id;
     char password[MAXBUFSIZE];
     
     int current_session_id;

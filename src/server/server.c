@@ -108,10 +108,9 @@ void listen_for_messages() {
 
     struct sockaddr_storage remoteaddr; // client address
     char remoteIP[INET6_ADDRSTRLEN];
-
-    char buf[MAXBUFSIZE]; // buffer for client data
+    
     int nbytes;
-
+    
     // main loop
     PRINT("Waiting for Clients\n");
     for (;;) {
@@ -147,19 +146,18 @@ void listen_for_messages() {
                                 );
                     }
                 } else {
-                    // TODO: move to a new function
-                    if ((nbytes = recv(i, buf, sizeof buf, 0)) <= 0) {
+                    Message* msg = (Message*) malloc(sizeof(Message));
+                    if ((nbytes = recv(i, msg, sizeof(Message), 0)) <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) PRINT("selectserver: socket %d hung up\n", i);
                         else perror("recv");
 
                         close(i); // bye!
                         FD_CLR(i, &master); // remove from master set
-                    }// Actually get the message
+                    }
                     else {
-                        handle_client_message(buf, i);
-                        // we got some data from a client
-
+                        if(DEBUG_MSG) print_message(msg);
+                        handle_client_message(msg, i);                        
                     }
                 } // END handle data from client
             } // END got new incoming connection
