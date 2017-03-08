@@ -1,4 +1,3 @@
 /login 1 User1 127.0.0.1 5007
-/login 10 User2 127.0.0.1 5007
-/list
 /createsession 1
+/joinsession 1

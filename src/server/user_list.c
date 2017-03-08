@@ -9,7 +9,7 @@
 #define NELEMS(x)  (sizeof(x) / sizeof((x)[0]))
 
 // Global list of online users
-User_List online_users;
+User_List* online_users;
 
 // Global list of registered users
 User registered_users[] = { 
@@ -36,7 +36,7 @@ bool authenticate_existing_user(int id, char* password) {
 }
 
 User_List* find_active_user(int id) {
-    User_List* next = &online_users;
+    User_List* next = online_users;
     while(next != NULL) {
         if(next->user.id == id) return next;
         next = next->next;
@@ -44,20 +44,30 @@ User_List* find_active_user(int id) {
     return NULL;
 }
 
-User_List* add_user(User* user) {
-    User_List* next = &online_users;
+User_List* add_user(User* user, int fd) {
+    User_List* next = online_users;
+    
+    if(online_users == NULL) {
+        online_users = (User_List*) malloc(sizeof(User_List));
+        online_users->user = *user;
+        online_users->fd = fd;
+        return online_users;
+    }
     
     while(next->next != NULL)
         next = next->next;
     
-    next->user = *user;
+    // Add information
     next->next = (User_List*) malloc(sizeof(User_List));
-    return next;
+    next->next->user = *user;
+    next->next->fd = fd;
+
+    return next->next;
 }
 
 bool delete_user(int id) {
-    User_List* previous = &online_users;
-    User_List* next = &online_users;
+    User_List* previous = online_users;
+    User_List* next = online_users;
     while(next != NULL) {
         if(next->user.id == id) break;
         next = next->next;
@@ -74,13 +84,12 @@ bool delete_user(int id) {
 }
 
 void print_active_users() {
-    printf("Active Users:\n");
-    printf("User\tIP Address\tPort\tSession");
+    PRINT("Active Users:\n");
+    PRINT("User FD Session\n");
     
-    User_List* next = &online_users;
-    printf("%04d\t%s\t%4d\t%4d", next->user.id, next->ip_address, next->port_address, next->session_id);
+    User_List* next = online_users;
     while(next != NULL) {
+        PRINT("%d\t%d\t%d\n", next->user.id, next->fd, next->session_id);
         next = next->next;
-        printf("%04d\t%s\t%4d\t%4d", next->user.id, next->ip_address, next->port_address, next->session_id);
     }
 }

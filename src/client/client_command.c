@@ -104,10 +104,31 @@ bool logout() {
 
 bool join_session(unsigned session_id) {
     PRINT("Joining session %d\n", session_id);
+    Message m;
+    m.type = JOIN;
+    sprintf(m.source, "%d", status.client_id);
+    sprintf(m.data, "%d", session_id);
+    
+    deliver_message(&m, status.sockfd);
+    
+    Message* r;
+    r = receive_message(status.sockfd);
+    if(r->type == JN_NCK) {
+        PRINT(r->data);
+        return false;
+    }
+    PRINT("Joined Session %d\n", session_id);
+    return true;
 }
 
 bool leave_session() {
     PRINT("Leaving session\n");
+    Message m;
+    m.type = LEAVE_SESS;
+    sprintf(m.source, "%d", status.client_id);
+    deliver_message(&m, status.sockfd);
+
+    return true;
 }
 
 bool create_session(unsigned session_id) {
@@ -118,6 +139,13 @@ bool create_session(unsigned session_id) {
     sprintf(m.data, "%d", session_id);
     
     deliver_message(&m, status.sockfd);
+    
+    Message* r;
+    r = receive_message(status.sockfd);
+    if(r->type == NS_ACK)
+        PRINT("Session Created\n");
+    else
+        PRINT(r->data);
     
 }
 
@@ -142,6 +170,11 @@ bool quit() {
 }
 
 bool send_message(char* message) {
-    PRINT("%s", message);
-    return false;
+    Message m;
+    m.type = MESSAGE;
+    sprintf(m.source, "%d", status.client_id);
+    strcpy(m.data, message);
+    deliver_message(&m, status.sockfd);
+    
+    return true;
 }

@@ -9,6 +9,7 @@
 typedef struct session {
     int id;
     fd_set ports;
+    int fd_max;
     User* users[MAX_USERS_PER_SESSION];
 }Session;
 

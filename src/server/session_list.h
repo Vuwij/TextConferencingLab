@@ -3,12 +3,10 @@
 
 #include "session.h"
 
-typedef struct session_list {
+typedef struct sess_list {
     Session session;
-    struct session_list* next; 
+    struct sess_list* next; 
 } Session_List;
-
-extern Session_List session_list;
 
 Session* open_session(int id);
 
@@ -25,6 +23,8 @@ User** get_users_in_session(Session* session);
 bool session_is_empty(Session* session);
 
 void print_active_sessions();
+
+char* get_session_string();
 
 #endif	/* SESSIONS_H */
 

@@ -16,10 +16,10 @@ void PRINT(const char * pString, ...) {
             printf("                                                                  ");
             break;
         case CLIENT3:
-            printf("                                                                                          ");
+            printf("                                                                                                     ");
             break;
         case CLIENT4:
-            printf("                                                                                                                  ");    
+            printf("                                                                                                                                       ");    
             break;
         default:
             break;

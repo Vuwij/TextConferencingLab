@@ -13,9 +13,10 @@ typedef enum {
     LEAVE_SESS = 8,
     NEW_SESS = 9,
     NS_ACK = 10,
-    MESSAGE = 11,
-    QUERY = 12,
-    QU_ACK = 13
+    NS_NACK = 11,
+    MESSAGE = 12,
+    QUERY = 13,
+    QU_ACK = 14
 }control_packet_t;
 
 #endif	/* PACKET_TYPE_H */

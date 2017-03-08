@@ -8,8 +8,7 @@
 typedef struct user_list {
     User user;
     int session_id;
-    char* ip_address;
-    int port_address;
+    int fd;
     struct user_list *next;
 } User_List;
 
@@ -17,7 +16,7 @@ bool authenticate_existing_user(int id, char* password);
 
 User_List* find_active_user(int id);
 
-User_List* add_user(User* user);
+User_List* add_user(User* user, int fd);
 
 bool delete_user(int id);
 

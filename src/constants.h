@@ -18,7 +18,7 @@
 // Debugging Print Section
 
 #define DEBUG                   1
-#define DEBUG_MSG               0   // Prints packet information on deliver
+#define DEBUG_MSG               0       // Prints packet information on deliver
 
 typedef enum {
     SERVER = 0,
