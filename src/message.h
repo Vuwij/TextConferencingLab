@@ -26,10 +26,6 @@ typedef struct {
     unsigned char data[MAX_DATA];
 }Message;
 
-char* serialize_message(Message* message);
-
-Message deserialize_message(char* buf, int size);
-
 int deliver_message(Message* message, int sockfd);
 
 Message* receive_message(int sockfd);
