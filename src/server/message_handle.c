@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
 
 #include "../message.h"
 #include "../packet_type.h"
@@ -9,101 +10,108 @@
 
 void login(Message* msg, int fd) {
     PRINT("Login Request: %s, %s\n", msg->source, msg->data);
+
+    // Check User ID and Password
     char* s = msg->source;
     unsigned id = atoi(s);
-
     char* pass = msg->data;
 
-    bool valid = authenticate_existing_user(id, pass);
-
-    if (valid) {
-        // Add the user to the database
-        User* user = (User*) malloc(sizeof (User));
-        user->id = id;
-        user->password = pass;
-
-        add_user(user, fd);
-        PRINT("User Valid\n");
-
-        // Sending LO_ACK
-        Message m;
-        m.type = LO_ACK;
-        deliver_message(&m, fd);
-    } else {
-        PRINT("User Invalid\n");
-        // Sending LO_NACK
-        Message m;
-        m.type = LO_NAK;
-        strcpy(m.data, "Invalid User or Pass\n");
-        deliver_message(&m, fd);
+    Message m;
+    int authen_status = authenticate_existing_user(id, pass);
+    switch (authen_status) {
+        case ERR_NO:
+            PRINT("User Valid\n");
+            // Add the user to the database
+            User* user = (User*) malloc(sizeof (User));
+            user->id = id;
+            user->password = pass;
+            add_user(user, fd);
+            m.type = LO_ACK;
+            break;
+        case ERR_LOGGED_IN:
+            PRINT("User Already Logged In\n");
+            m.type = LO_NAK;
+            strncpy(m.data, "User Already Logged In\n", strlen("User Already Logged In\n"));
+            break;
+        case ERR_ID_NO_MATCH:
+            PRINT("User ID not found\n");
+            m.type = LO_NAK;
+            strncpy(m.data, "User ID not found\n", strlen("User ID not found\n"));
+            break;
+        case ERR_PASS_NO_MATCH:
+            PRINT("User Password does not match\n");
+            m.type = LO_NAK;
+            strncpy(m.data, "User Password does not match\n", strlen("User Password does not match\n"));
+            break;
+        default:
+            PRINT("Server Error Occurred\n");
+            exit(0);
     }
+    deliver_message(&m, fd);
 }
 
+/*Some issue with this need to come back here*/
 void exitserver(Message* msg, int fd) {
-    char* s;
-    sprintf(s, "%s", msg->source);
+    char s[MAX_NAME];
+    snprintf(s, MAX_NAME, "%s", msg->source);
     unsigned id = atoi(s);
 
     // Find the user associated
     User_List* user = find_active_user(id);
 
-    // Close the session
+    // Close the session if user joined session
     if (user->session_id >= 0) {
         Session* userSession = find_session(user->session_id);
+        assert(userSession != NULL);
         close_session(userSession->id);
     }
 
-    // Delete the user
+    // Close the user
     bool deleteSuccess = delete_user(id);
     if (!deleteSuccess)
         fprintf(stderr, "ERROR: unable to delete user with id %d", id);
+    else
+        close(fd);
 }
 
 void join(Message* msg, int fd) {
     unsigned id = atoi(msg->source);
     unsigned session_id = atoi(msg->data);
 
-    // Find the user associated
+    Message r;
+
+    // Check user and session
     User_List* user = find_active_user(id);
-
-    if (user == NULL) {
-        // Send NACK, user doesn't exist
-        Message r;
-        r.type = JN_NAK;
-        strcpy(r.data, "User Invalid\n");
-        deliver_message(&r, fd);
-        return;
-    }
-
-    // Check that the session exists
     Session* session = find_session(session_id);
 
-    if (session == NULL) {
-        // Send NACK, session already exists
-        Message r;
+    if (user == NULL) {
         r.type = JN_NAK;
-        strcpy(r.data, "Session Doesn't Exist\n");
-        deliver_message(&r, fd);
-        return;
+        strncpy(r.data, "User Invalid\n", strlen("User Invalid\n"));
+    } else if (session == NULL) {
+        r.type = JN_NAK;
+        strncpy(r.data, "Session Doesn't Exist\n", strlen("Session Doesn't Exist\n"));
+    } else if (user->session_id >= 0) {
+        r.type = JN_NAK;
+        strncpy(r.data, "Joined Session Already\n", strlen("Joined Session Already\n"));
+    } else {
+        r.type = JN_ACK;
+        PRINT("%s\n", msg->data);
+        strncpy(r.data, msg->data, sizeof (msg->data));
+
+        // Add user to the session and vice versa
+        user->session_id = session_id;
+        add_user_to_session(session, &user->user);
+        assert(fd == user->fd);
+        FD_SET(fd, &session->server_ports);
+        if (fd > session->fd_max) session->fd_max = fd;
+        PRINT("Added User %d to Session %d\n", id, session_id);
     }
 
-    // Add the session to the user and the user to the session
-    user->session_id = session_id;
-    add_user_to_session(session, &user->user);
-    FD_SET(fd, &session->ports);
-    if(fd > session->fd_max) session->fd_max = fd;
-    PRINT("Added User %d to Session %d\n", id, session_id);
-
-    // ACK the joining
-    Message r;
-    r.type = JN_ACK;
-    strcpy(r.data, msg->data);
     deliver_message(&r, fd);
 }
 
 void leave_sess(Message* msg, int fd) {
     unsigned id = atoi(msg->source);
-
 
     // Find the user associated
     User_List* user = find_active_user(id);
@@ -128,7 +136,7 @@ void leave_sess(Message* msg, int fd) {
     remove_user_from_session(session, &user->user);
 
     // If it is the last user then close the session
-    if (session_is_empty(session)) close_session(session->id);
+    if (is_session_empty(session)) close_session(session->id);
 }
 
 void new_sess(Message* msg, int fd) {
@@ -193,38 +201,51 @@ void message(Message* msg, int fd) {
     if (session_id == -1) return;
 
     Session* session = find_session(session_id);
-    
+
     PRINT("BCAST %s: \n", msg->data);
-    
+
     for (int i = 0; i <= session->fd_max; i++) {
-        
-        if (FD_ISSET(i, &session->ports)) {
+
+        if (FD_ISSET(i, &session->server_ports)) {
             if (i != fd) {
                 deliver_message(msg, i);
             }
         }
     }
+
 }
 
+/* Handles the message */
 void handle_client_message(Message* msg, int fd) {
-    // Handles the message
-    if (msg->type == CONNECT)
-        return;
-    if (msg->type == LOGIN)
-        login(msg, fd);
-    else if (msg->type == EXIT)
-        exitserver(msg, fd);
-    else if (msg->type == JOIN)
-        join(msg, fd);
-    else if (msg->type == LEAVE_SESS)
-        leave_sess(msg, fd);
-    else if (msg->type == NEW_SESS)
-        new_sess(msg, fd);
-    else if (msg->type == QUERY)
-        query(msg, fd);
-    else if (msg->type == MESSAGE)
-        message(msg, fd);
-    else
-        fprintf(stderr, "Incorrect packet type sent by client. Recieved %d", (int) msg->type);
-    return;
+
+    switch (msg->type) {
+        case CONNECT:
+            break;
+        case LOGIN:
+            login(msg, fd);
+            break;
+        case EXIT:
+            exitserver(msg, fd);
+            break;
+        case JOIN:
+            join(msg, fd);
+            break;
+        case LEAVE_SESS:
+            leave_sess(msg, fd);
+            break;
+        case NEW_SESS:
+            new_sess(msg, fd);
+            break;
+        case MESSAGE:
+            message(msg, fd);
+            break;
+        case QUERY:
+            query(msg, fd);
+            break;
+        default:
+            fprintf(stderr, "Incorrect packet type sent by client. Recieved %d", (int) msg->type);
+
+    }
 }
+
+

@@ -1,5 +1,5 @@
 #ifndef SERVER_H
-#define	SERVER_H
+#define SERVER_H
 
 #include <netdb.h>
 
@@ -17,15 +17,15 @@ extern int sockfd;
 extern int PORT;
 extern AddrInfo *p;
 
-// The list of registered users
+// Registered User List
 extern User registered_users[];
 
-// The list of online ussers
+// Online User List
 extern User_List* online_users;
 
-// The session list
+// Session List
 extern Session_List* session_list;
 
 void handle_client_message(Message* msg, int fd);
 
-#endif	/* SERVER_H */
+#endif /* SERVER_H */

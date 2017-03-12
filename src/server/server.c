@@ -37,8 +37,8 @@ void sigchld_handler(int s) {
 }
 
 void open_server_socket(int port) {
-    char server_port_s[4];
-    sprintf(server_port_s, "%d", port);
+    char server_port_s[PORT_BUF_SIZE];
+    snprintf(server_port_s, PORT_BUF_SIZE, "%d", port);
     int new_fd; // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo;
     struct sockaddr_storage their_addr; // connector's address information
@@ -47,15 +47,17 @@ void open_server_socket(int port) {
     int yes = 1;
     char s[INET6_ADDRSTRLEN];
     int rv;
+
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE; // use my IP
+    hints.ai_flags = AI_PASSIVE;
+
     if ((rv = getaddrinfo(NULL, server_port_s, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return;
     }
-    // loop through all the results and bind to the first we can
+
     for (p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
@@ -74,7 +76,9 @@ void open_server_socket(int port) {
         }
         break;
     }
-    freeaddrinfo(servinfo); // all done with this structure
+
+    freeaddrinfo(servinfo);
+
     if (p == NULL) {
         fprintf(stderr, "server: failed to bind\n");
         exit(1);
@@ -83,13 +87,16 @@ void open_server_socket(int port) {
         perror("listen");
         exit(1);
     }
-    sa.sa_handler = sigchld_handler; // reap all dead processes
+
+    // Clear all dead processes
+    sa.sa_handler = sigchld_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &sa, NULL) == -1) {
         perror("sigaction");
         exit(1);
     }
+
 }
 
 struct timeval tv = {
@@ -98,6 +105,7 @@ struct timeval tv = {
 };
 
 void listen_for_messages() {
+    //Initialize File Descriptor
     fd_set master; // master file descriptor list
     fd_set read_fds; // temp file descriptor list for select()
     FD_ZERO(&master);
@@ -108,12 +116,13 @@ void listen_for_messages() {
 
     struct sockaddr_storage remoteaddr; // client address
     char remoteIP[INET6_ADDRSTRLEN];
-    
+
     int nbytes;
-    
+
     // main loop
     PRINT("Waiting for Clients\n");
-    for (;;) {
+
+    while (1) {
         // Copy the master to the temporary FD
         read_fds = master;
         if (select(fdmax + 1, &read_fds, NULL, NULL, &tv) == -1) {
@@ -124,13 +133,12 @@ void listen_for_messages() {
         // run through the existing connections looking for data to read
         for (int i = 0; i <= fdmax; i++) {
             if (FD_ISSET(i, &read_fds)) { // we got one!!
+
                 // New Connections
                 if (i == sockfd) {
                     socklen_t addrlen = sizeof remoteaddr;
                     int newfd = accept(sockfd,
-                            (struct sockaddr *) &remoteaddr,
-                            &addrlen);
-
+                            (struct sockaddr *) &remoteaddr, &addrlen);
                     if (newfd == -1) {
                         perror("accept");
                     } else {
@@ -146,23 +154,24 @@ void listen_for_messages() {
                                 );
                     }
                 } else {
-                    Message* msg = (Message*) malloc(sizeof(Message));
-                    if ((nbytes = recv(i, msg, sizeof(Message), 0)) <= 0) {
+                    Message* msg = (Message*) malloc(sizeof (Message));
+                    if ((nbytes = recv(i, msg, sizeof (Message), 0)) <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) PRINT("selectserver: socket %d hung up\n", i);
                         else perror("recv");
 
-                        close(i); // bye!
                         FD_CLR(i, &master); // remove from master set
+                        close(i); // close the stream
+
+                    } else {
+                        if (DEBUG_MSG) print_message(msg);
+                        handle_client_message(msg, i);
                     }
-                    else {
-                        if(DEBUG_MSG) print_message(msg);
-                        handle_client_message(msg, i);                        
-                    }
+                    free(msg);
                 } // END handle data from client
             } // END got new incoming connection
         } // END looping through file descriptors
-    } // END for(;;)   
+    } // END while(1) 
 }
 
 int sockfd;
@@ -174,8 +183,8 @@ int main(int argc, char *argv[]) {
 
     // Obtain the Port Number
     port = atoi(argv[1]);
-    if (!(0 <= port && port <= 65535)) {
-        fprintf(stderr, "port = %d should be within 0-65535\n", port);
+    if (!(MIN_PORTNUM <= port && port <= MAX_PORTNUM)) {
+        fprintf(stderr, "port = %d should be within range [%d:%d]\n", port, MIN_PORTNUM, MAX_PORTNUM);
         usage(argv[0]);
     }
 

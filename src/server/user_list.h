@@ -1,9 +1,14 @@
 #ifndef USER_LIST
-#define	USER_LIST
+#define USER_LIST
 
 #include <stdbool.h>
 
 #include "user.h"
+
+#define ERR_NO 0
+#define ERR_LOGGED_IN 1
+#define ERR_ID_NO_MATCH 2
+#define ERR_PASS_NO_MATCH 3
 
 typedef struct user_list {
     User user;
@@ -12,15 +17,15 @@ typedef struct user_list {
     struct user_list *next;
 } User_List;
 
-bool authenticate_existing_user(int id, char* password);
+int authenticate_existing_user(int id, char* password);
 
 User_List* find_active_user(int id);
 
-User_List* add_user(User* user, int fd);
+void add_user(User* user, int fd);
 
 bool delete_user(int id);
 
 void print_active_users();
 
-#endif	/* ACTIVE_CLIENTS_H */
+#endif /* ACTIVE_CLIENTS_H */
 

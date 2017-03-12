@@ -1,16 +1,19 @@
 #ifndef SESSION_H
-#define	SESSION_H
+#define SESSION_H
 
 #include <sys/time.h>
 
 #include "user.h"
 #include "../constants.h"
 
+#define NOT_AVAIL -1
+
 typedef struct session {
     int id;
-    fd_set ports;
+    fd_set server_ports;
     int fd_max;
     User* users[MAX_USERS_PER_SESSION];
-}Session;
+    int num_user;
+} Session;
 
-#endif	/* SESSION_H */
+#endif /* SESSION_H */

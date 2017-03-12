@@ -9,6 +9,11 @@
 #define MAXBUFSIZE              20      // For string length
 #define MAXDATASIZE             1000    // max number of bytes we can get at once
 
+// Port Parmaeters
+#define MIN_PORTNUM             0
+#define MAX_PORTNUM             65535
+#define PORT_BUF_SIZE           5
+
 // Server Parameters
 #define BACKLOG                 10      // how many pending connections queue will hold
 #define PACKET_TIMEOUT          100     // Timeout for packet sending (in microseconds)
@@ -16,7 +21,6 @@
 #define SERVER_NACK_TIMEOUT     15000
 
 // Debugging Print Section
-
 #define DEBUG                   1
 #define DEBUG_MSG               0       // Prints packet information on deliver
 

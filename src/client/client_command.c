@@ -13,12 +13,6 @@
 #include "client.h"
 #include "status.h"
 
-#define MAX_PORTNUM 65535
-#define MIN_PORTNUM 0
-#define PORT_BUF_SIZE 5
-
-// get sockaddr, IPv4 or IPv6:
-
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
         return &(((struct sockaddr_in*) sa)->sin_addr);
@@ -30,7 +24,7 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
     PRINT("Login: %d %s at %s %d\n", client_id, password, server_ip, server_port);
 
     if (!(MIN_PORTNUM <= server_port && server_port <= MAX_PORTNUM)) {
-        PRINT("Port Number \'%d\' is not within range [%d:%d]", server_port, MIN_PORTNUM, MAX_PORTNUM);
+        fprintf(stderr, "port = %d should be within range [%d:%d]\n", server_port, MIN_PORTNUM, MAX_PORTNUM);
         return false;
     }
 
@@ -132,7 +126,7 @@ bool join_session(unsigned session_id) {
         PRINT(r->data);
         return false;
     } else if (r->type == JN_ACK) {
-        PRINT("Joined Session %d\n", r->data);
+        PRINT("Joined Session %s\n", r->data);
         return true;
     }
 
@@ -187,8 +181,8 @@ bool list() {
 
 bool quit() {
     PRINT("Quitting\n");
-    close(status.sockfd);
 
+    close(status.sockfd);
     exit(1);
 }
 
