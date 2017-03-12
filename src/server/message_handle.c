@@ -97,6 +97,7 @@ void join(Message* msg, int fd) {
     // ACK the joining
     Message r;
     r.type = JN_ACK;
+    strcpy(r.data, msg->data);
     deliver_message(&r, fd);
 }
 

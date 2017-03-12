@@ -132,9 +132,7 @@ bool join_session(unsigned session_id) {
         PRINT(r->data);
         return false;
     } else if (r->type == JN_ACK) {
-        PRINT("Joined Session %d\n", session_id);
-        if (session_id != atoi(r->data))
-            PRINT("I need session ID Here from Server Jason!, Session ID: %d, Received Session ID: %s", session_id, r->data);
+        PRINT("Joined Session %d\n", r->data);
         return true;
     }
 
