@@ -33,7 +33,7 @@ void login(Message* msg, int fd) {
         PRINT("User Invalid\n");
         // Sending LO_NACK
         Message m;
-        m.type = LO_NACK;
+        m.type = LO_NAK;
         strcpy(m.data, "Invalid User or Pass\n");
         deliver_message(&m, fd);
     }
@@ -69,7 +69,7 @@ void join(Message* msg, int fd) {
     if (user == NULL) {
         // Send NACK, user doesn't exist
         Message r;
-        r.type = JN_NCK;
+        r.type = JN_NAK;
         strcpy(r.data, "User Invalid\n");
         deliver_message(&r, fd);
         return;
@@ -81,7 +81,7 @@ void join(Message* msg, int fd) {
     if (session == NULL) {
         // Send NACK, session already exists
         Message r;
-        r.type = JN_NCK;
+        r.type = JN_NAK;
         strcpy(r.data, "Session Doesn't Exist\n");
         deliver_message(&r, fd);
         return;
@@ -110,7 +110,7 @@ void leave_sess(Message* msg, int fd) {
     if (user == NULL) {
         // Send NACK, user doesn't exist
         Message r;
-        r.type = JN_NCK;
+        r.type = JN_NAK;
         strcpy(r.data, "User Invalid\n");
         deliver_message(&r, fd);
         return;

@@ -13,24 +13,34 @@
 #include "client.h"
 #include "status.h"
 
+#define MAX_PORTNUM 65535
+#define MIN_PORTNUM 0
+#define PORT_BUF_SIZE 5
+
 // get sockaddr, IPv4 or IPv6:
+
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
+        return &(((struct sockaddr_in*) sa)->sin_addr);
     }
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+    return &(((struct sockaddr_in6*) sa)->sin6_addr);
 }
 
 bool login(int client_id, char* password, char* server_ip, int server_port) {
     PRINT("Login: %d %s at %s %d\n", client_id, password, server_ip, server_port);
-    
+
+    if (!(MIN_PORTNUM <= server_port && server_port <= MAX_PORTNUM)) {
+        PRINT("Port Number \'%d\' is not within range [%d:%d]", server_port, MIN_PORTNUM, MAX_PORTNUM);
+        return false;
+    }
+
     int sockfd;
     struct addrinfo hints, *p, *servinfo;
     int rv;
-    
-    char server_port_s[4];
-    sprintf(server_port_s, "%d", server_port);
-    
+
+    char server_port_s[PORT_BUF_SIZE];
+    snprintf(server_port_s, PORT_BUF_SIZE, "%d", server_port);
+
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -59,73 +69,85 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
         fprintf(stderr, "client: failed to create socket\n");
         return false;
     }
-    
+
     char s[INET6_ADDRSTRLEN];
-    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
+    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr), s, sizeof s);
     freeaddrinfo(servinfo);
-    
+
     // Update Status with the client and server socket and port
     status.sockfd = sockfd;
     status.p = p;
-    strcpy(status.connected_server_ip, server_ip);
+    strncpy(status.connected_server_ip, server_ip, MAXBUFSIZE);
     status.connected_server_port = server_port;
-    
+
     // Send a message and get an reply
     PRINT("Connecting to %s\n", s);
     Message m;
     m.type = LOGIN;
-    bzero(m.source, sizeof(m.source));
-    bzero(m.data, sizeof(m.data));
-    sprintf(m.source, "%d", client_id);
-    strcpy(m.data, password);
-    
+    bzero(m.source, MAX_NAME);
+    bzero(m.data, MAX_DATA);
+    snprintf(m.source, MAX_NAME, "%d", client_id);
+    strncpy(m.data, password, MAX_DATA);
+
     PRINT("Logging In\n");
     deliver_message(&m, status.sockfd);
-    
+
     Message* r;
     r = receive_message(status.sockfd);
-    
-    if(r->type == LO_ACK) {
+
+    if (r->type == LO_ACK) {
         PRINT("Login Succeeded\n");
         status.client_id = client_id;
-        strcpy(status.password, password);
+        strncpy(status.password, password, MAXBUFSIZE);
         return true;
     }
-    if(r->type == LO_NACK) {
+    if (r->type == LO_NAK) {
         PRINT("Login Failed: %s\n", r->data);
     }
-    
+
     return false;
 }
 
 bool logout() {
     PRINT("Logging out\n");
+
+    Message m;
+    m.type = EXIT;
+    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    deliver_message(&m, status.sockfd);
 }
 
 bool join_session(unsigned session_id) {
     PRINT("Joining session %d\n", session_id);
+
     Message m;
     m.type = JOIN;
-    sprintf(m.source, "%d", status.client_id);
-    sprintf(m.data, "%d", session_id);
-    
+    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    snprintf(m.data, MAX_DATA, "%d", session_id);
     deliver_message(&m, status.sockfd);
-    
+
     Message* r;
     r = receive_message(status.sockfd);
-    if(r->type == JN_NCK) {
+    if (r->type == JN_NAK) {
         PRINT(r->data);
         return false;
+    } else if (r->type == JN_ACK) {
+        PRINT("Joined Session %d\n", session_id);
+        if (session_id != atoi(r->data))
+            PRINT("I need session ID Here from Server Jason!, Session ID: %d, Received Session ID: %s", session_id, r->data);
+        return true;
     }
-    PRINT("Joined Session %d\n", session_id);
-    return true;
+
+    PRINT("Received wrong packet from server\n");
+    return false;
 }
 
 bool leave_session() {
     PRINT("Leaving session\n");
+
     Message m;
     m.type = LEAVE_SESS;
-    sprintf(m.source, "%d", status.client_id);
+    snprintf(m.source, MAX_NAME, "%d", status.client_id);
     deliver_message(&m, status.sockfd);
 
     return true;
@@ -133,48 +155,53 @@ bool leave_session() {
 
 bool create_session(unsigned session_id) {
     PRINT("Creating session %d\n", session_id);
+
     Message m;
     m.type = NEW_SESS;
-    sprintf(m.source, "%d", status.client_id);
-    sprintf(m.data, "%d", session_id);
-    
+    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    snprintf(m.data, MAX_DATA, "%d", session_id);
     deliver_message(&m, status.sockfd);
-    
+
     Message* r;
     r = receive_message(status.sockfd);
-    if(r->type == NS_ACK)
+    if (r->type == NS_ACK)
         PRINT("Session Created\n");
     else
         PRINT(r->data);
-    
+
 }
 
 bool list() {
     PRINT("Listing Sessions\n");
+
     Message m;
     m.type = QUERY;
-    sprintf(m.source, "%d", status.client_id);
+    snprintf(m.source, MAX_NAME, "%d", status.client_id);
     deliver_message(&m, status.sockfd);
-    
+
     Message* r;
     r = receive_message(status.sockfd);
-    if(r->type == QU_ACK)
+    if (r->type == QU_ACK)
         PRINT(r->data);
     else
-        PRINT("Invalid packet %d", (int)m.type);
+        PRINT("Invalid packet %d", (int) m.type);
 }
 
 bool quit() {
     PRINT("Quitting\n");
+    close(status.sockfd);
+
     exit(1);
 }
 
 bool send_message(char* message) {
+    PRINT("Sending Message");
+
     Message m;
     m.type = MESSAGE;
-    sprintf(m.source, "%d", status.client_id);
-    strcpy(m.data, message);
+    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    strncpy(m.data, message, MAX_DATA);
     deliver_message(&m, status.sockfd);
-    
+
     return true;
 }
