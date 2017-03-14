@@ -13,7 +13,7 @@ typedef enum {
     LEAVE_SESS = 8,
     NEW_SESS = 9,
     NS_ACK = 10,
-    NS_NACK = 11,
+    NS_NAK = 11,
     MESSAGE = 12,
     QUERY = 13,
     QU_ACK = 14

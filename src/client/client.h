@@ -1,5 +1,5 @@
 #ifndef CLIENT_H
-#define	CLIENT_H
+#define CLIENT_H
 
 #include "../constants.h"
 #include "../message.h"
@@ -24,5 +24,18 @@ bool quit();
 
 bool send_message(char* message);
 
-#endif	/* CLIENT_H */
+static unsigned long
+sdbm(str)
+unsigned char *str;
+{
+    unsigned long hash = 0;
+    int c;
+
+    while (c = *str++)
+        hash = c + (hash << 6) + (hash << 16) - hash;
+
+    return hash;
+}
+
+#endif /* CLIENT_H */
 

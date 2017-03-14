@@ -7,6 +7,7 @@
 #include "../packet_type.h"
 #include "user_list.h"
 #include "session_list.h"
+#include "server.h"
 
 void login(Message* msg, int fd) {
     PRINT("Login Request: %s, %s\n", msg->source, msg->data);
@@ -58,20 +59,25 @@ void exitserver(Message* msg, int fd) {
 
     // Find the user associated
     User_List* user = find_active_user(id);
+    Session* userSession = find_session(user->session_id);
 
-    // Close the session if user joined session
-    if (user->session_id >= 0) {
-        Session* userSession = find_session(user->session_id);
-        assert(userSession != NULL);
-        close_session(userSession->id);
+    // Remove user from the session
+    if (userSession != NULL) {
+        remove_user_from_session(userSession, &(user->user));
+
+        // If it is the last user then close the session
+        if (is_session_empty(userSession))
+            close_session(userSession->id);
     }
 
-    // Close the user
+    // Delete User from UserList
     bool deleteSuccess = delete_user(id);
     if (!deleteSuccess)
         fprintf(stderr, "ERROR: unable to delete user with id %d", id);
     else
         close(fd);
+    FD_CLR(fd, &master);
+    assert(!FD_ISSET(fd, &master));
 }
 
 void join(Message* msg, int fd) {
@@ -87,6 +93,7 @@ void join(Message* msg, int fd) {
     if (user == NULL) {
         r.type = JN_NAK;
         strncpy(r.data, "User Invalid\n", strlen("User Invalid\n"));
+        assert(0); //I believe this doesn't ever occur or should never occur
     } else if (session == NULL) {
         r.type = JN_NAK;
         strncpy(r.data, "Session Doesn't Exist\n", strlen("Session Doesn't Exist\n"));
@@ -103,7 +110,8 @@ void join(Message* msg, int fd) {
         add_user_to_session(session, &user->user);
         assert(fd == user->fd);
         FD_SET(fd, &session->server_ports);
-        if (fd > session->fd_max) session->fd_max = fd;
+        if (fd > session->fd_max)
+            session->fd_max = fd;
         PRINT("Added User %d to Session %d\n", id, session_id);
     }
 
@@ -115,28 +123,24 @@ void leave_sess(Message* msg, int fd) {
 
     // Find the user associated
     User_List* user = find_active_user(id);
-
-    if (user == NULL) {
-        // Send NACK, user doesn't exist
-        Message r;
-        r.type = JN_NAK;
-        strcpy(r.data, "User Invalid\n");
-        deliver_message(&r, fd);
-        return;
-    }
+    assert(user != NULL);
 
     unsigned session_id = user->session_id;
-    if (session_id == -1) return;
-
+    if (session_id == -1) {
+        PRINT("User Has not Joined Any session\n");
+        return;
+    }
     // Check that the session exists
     Session* session = find_session(session_id);
+    assert(session != NULL);
 
-    // Add the session to the user and the user to the session
+    // Remove the session and the user from the session
     user->session_id = -1;
-    remove_user_from_session(session, &user->user);
+    remove_user_from_session(session, &(user->user));
 
     // If it is the last user then close the session
-    if (is_session_empty(session)) close_session(session->id);
+    if (is_session_empty(session))
+        close_session(session->id);
 }
 
 void new_sess(Message* msg, int fd) {
@@ -145,47 +149,33 @@ void new_sess(Message* msg, int fd) {
 
     // Find the user associated
     User_List* user = find_active_user(id);
-
-    if (user == NULL) {
-        // Send NACK, user doesn't exist
-        Message r;
-        r.type = NS_NACK;
-        strcpy(r.data, "User Invalid\n");
-        deliver_message(&r, fd);
-        return;
-    }
+    assert(user != NULL);
 
     // Check that the session exists
     Session* session = find_session(session_id);
-
+    Message r;
     if (session != NULL) {
-        // Send NACK, session already exists
-        Message r;
-        r.type = NS_NACK;
-        strcpy(r.data, "Session Already Exists\n");
-        deliver_message(&r, fd);
-        return;
+        strncpy(r.data, "Session Already Exists\n", strlen("Session Already Exists\n"));
+        r.type = NS_NAK;
+    } else {
+        PRINT("Session %d added\n", session_id);
+        r.type = NS_ACK;
+        open_session(session_id);
     }
 
-    // Opens the session
-    open_session(session_id);
-    PRINT("Session %d added\n", session_id);
-
-    // Acknowledging the new session
-    Message r;
-    r.type = NS_ACK;
     deliver_message(&r, fd);
 }
 
 void query(Message* msg, int fd) {
     print_active_users();
     print_active_sessions();
-    char* sess_str = get_session_string();
 
+    char sess_str[MAXDATASIZE];
+    get_session_string(sess_str);
     // Need to pack the information about users and sessions back to the client
     Message m;
     m.type = QU_ACK;
-    strcpy(m.data, sess_str);
+    strncpy(m.data, sess_str, MAX_DATA);
 
     deliver_message(&m, fd);
 }
@@ -195,12 +185,16 @@ void message(Message* msg, int fd) {
 
     // Find the user associated
     User_List* user = find_active_user(id);
+    assert(user != NULL);
 
-    if (user == NULL) return;
-    unsigned session_id = user->session_id;
-    if (session_id == -1) return;
+    int session_id = user->session_id;
+
+    // If the user has not joined the session
+    if (session_id == -1)
+        return;
 
     Session* session = find_session(session_id);
+    assert(session != NULL);
 
     PRINT("BCAST %s: \n", msg->data);
 
@@ -243,8 +237,7 @@ void handle_client_message(Message* msg, int fd) {
             query(msg, fd);
             break;
         default:
-            fprintf(stderr, "Incorrect packet type sent by client. Recieved %d", (int) msg->type);
-
+            fprintf(stderr, "Incorrect packet type sent by client. Received %d", (int) msg->type);
     }
 }
 

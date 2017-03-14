@@ -16,6 +16,7 @@
 #include "server.h"
 
 int port;
+fd_set master; // master file descriptor list
 
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
@@ -106,7 +107,6 @@ struct timeval tv = {
 
 void listen_for_messages() {
     //Initialize File Descriptor
-    fd_set master; // master file descriptor list
     fd_set read_fds; // temp file descriptor list for select()
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
@@ -126,6 +126,7 @@ void listen_for_messages() {
         // Copy the master to the temporary FD
         read_fds = master;
         if (select(fdmax + 1, &read_fds, NULL, NULL, &tv) == -1) {
+
             perror("select");
             exit(4);
         }

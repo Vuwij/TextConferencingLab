@@ -24,7 +24,9 @@ Session* open_session(int id) {
     new_session->session.fd_max = -1;
     new_session->session.num_user = 0;
     FD_ZERO(&new_session->session.server_ports);
-    bzero(new_session->session.users, MAX_USERS_PER_SESSION);
+    int i;
+    for (i = 0; i < MAX_USERS_PER_SESSION; i++)
+        new_session->session.users[i] = NULL;
 
     if (session_list == NULL) {
         session_list = new_session;
@@ -170,24 +172,25 @@ void print_active_sessions() {
     }
 }
 
-char* get_session_string() {
+void get_session_string(char *sess_str) {
     Session_List* s = session_list;
 
-    char* sess_str = "Active Sessions:\n";
     char id_str[MAXDATASIZE];
     char user_id_str[MAXDATASIZE];
+    int i = 0;
 
+    bzero(sess_str, MAXDATASIZE);
+    strncat(sess_str, "Active: ", MAXDATASIZE);
     while (s != NULL) {
-        snprintf(id_str, MAXDATASIZE, "Session %d - ", s->session.id);
+        snprintf(id_str, MAXDATASIZE, "Session % d - ", s->session.id);
         strncat(sess_str, id_str, MAXDATASIZE);
-
         for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
             if (s->session.users[i] == NULL)
                 continue;
-            snprintf(user_id_str, MAXDATASIZE, "%d, ", s->session.users[i]->id);
+            snprintf(user_id_str, MAXDATASIZE, "%d ", s->session.users[i]->id);
             strncat(sess_str, user_id_str, MAXDATASIZE);
         }
+        strncat(sess_str, "\n", MAXDATASIZE);
         s = s->next;
     }
-    return sess_str;
 }

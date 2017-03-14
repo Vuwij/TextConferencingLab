@@ -1,7 +1,5 @@
 /login 3 User3 127.0.0.1 5007
+/createsession 1
 /createsession 2
-/createsession 3
-/createsession 4
-/createsession 5
 /joinsession 2
-/joinsession 1
+/list

@@ -24,7 +24,7 @@ bool is_session_empty(Session* session);
 
 void print_active_sessions();
 
-char* get_session_string();
+void get_session_string(char *sess_str);
 
 #endif /* SESSIONS_H */
 

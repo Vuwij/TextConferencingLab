@@ -25,6 +25,8 @@ extern User_List* online_users;
 
 // Session List
 extern Session_List* session_list;
+extern fd_set master; // master file descriptor list
+
 
 void handle_client_message(Message* msg, int fd);
 

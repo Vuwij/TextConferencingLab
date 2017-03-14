@@ -95,7 +95,7 @@ bool delete_user(int id) {
 
 void print_active_users() {
     PRINT("Active Users:\n");
-    PRINT("User FD Session\n");
+    PRINT("User\tFD\tSession\n");
 
     User_List* curr = online_users;
     while (curr != NULL) {

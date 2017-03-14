@@ -187,7 +187,7 @@ bool quit() {
 }
 
 bool send_message(char* message) {
-    PRINT("Sending Message");
+    PRINT("Sending Message\n");
 
     Message m;
     m.type = MESSAGE;

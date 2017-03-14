@@ -65,13 +65,18 @@ int main(int argc, char *argv[]) {
     FD_ZERO(&read_fds);
     FD_SET(STDIN, &master);
     int fdmax = STDIN;
-
+    int ret = 0;
     while (1) {
         read_fds = master; // copy it
         // If select returns -1 there was an error, 0 timeOut
-        if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+        ret = select(fdmax + 1, &read_fds, NULL, NULL, NULL);
+        if (ret == -1) {
             perror("select");
             exit(4);
+        }
+        if (ret < 0) {
+            PRINT("Server Abnormally Closed Connection\n");
+            exit(0);
         }
 
         // If connection to the server is established
@@ -179,7 +184,7 @@ int main(int argc, char *argv[]) {
                         input_usage();
                         continue;
                     }
-                    send_message(command);
+                    send_message(input);
                 }
             } else {
                 input_usage();
