@@ -93,101 +93,107 @@ int main(int argc, char *argv[]) {
             if (fgets(input, 100, stdin) == NULL) continue;
             if (input[0] == '\n') continue; // ignore line feed
 
-            // Login
-            if (sscanf(input, "%s %d %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {
-                if (strncmp(command, "/login", strlen("/login")) != 0) {
-                    input_usage();
+            if (input[0] != '/') {
+                if (!logged_in) {
+                    PRINT("Not logged into a server\n");
                     continue;
                 }
-                if (logged_in) {
-                    PRINT("Already logged into a session\n");
+                if (!in_session) {
+                    PRINT("Not joined a session yet\n");
                     continue;
                 }
-                bool success = login(client_id, password, server_ip, server_port);
-                if (success) {
-                    logged_in = true;
-                    FD_SET(status.sockfd, &master);
-                    fdmax = status.sockfd;
-                }
-            }// Join and Create Session
-            else if (sscanf(input, "%s %d", command, &session_id) == 2) {
-                if (strncmp(command, "/joinsession", strlen("/joinsession")) == 0) {
-                    if (!logged_in) {
-                        PRINT("Not logged into any server\n");
-                        continue;
-                    }
-                    if (in_session) {
-                        PRINT("Already in session\n");
-                        continue;
-                    }
-                    bool success = join_session(session_id);
-                    if (success) in_session = true;
-                } else if (strncmp(command, "/createsession", strlen("/createsession")) == 0) {
-                    if (!logged_in) {
-                        PRINT("Not logged into any server\n");
-                        continue;
-                    }
-                    if (in_session) {
-                        PRINT("Already in session\n");
-                        continue;
-                    }
-                    create_session(session_id);
-                } else {
-                    input_usage();
-                }
-            }// Logout, list, quit or message
-            else if (sscanf(input, "%s", command) == 1) {
-                if (strncmp(command, "/logout", strlen("/logout")) == 0) {
-                    if (!logged_in) {
-                        PRINT("Not logged into any server\n");
-                        continue;
-                    }
-                    if (in_session) {
-                        bool success = leave_session();
-                        if (success) in_session = false;
-                        else continue;
-                    }
-                    bool success = logout();
-                    if (success) logged_in = false;
-                } else if (strncmp(command, "/leavesession", strlen("/leavesession")) == 0) {
-                    if (!logged_in) {
-                        PRINT("Not logged into any server\n");
-                        continue;
-                    }
-                    if (!in_session) {
-                        PRINT("Not entered into any session\n");
-                        continue;
-                    }
-                    leave_session();
-                    assert(in_session == true);
-                    in_session = false;
-                } else if (strncmp(command, "/list", strlen("/list")) == 0) {
-                    if (!logged_in) {
-                        PRINT("Not logged into any server\n");
-                        continue;
-                    }
-                    list();
-                } else if (strncmp(command, "/quit", strlen("/quit")) == 0) {
-                    if (in_session) {
-                        bool success = leave_session();
-                        if (success) in_session = false;
-                        else continue;
-                    }
-                    if (logged_in) {
-                        bool success = logout();
-                        if (success) logged_in = false;
-                        else continue;
-                    }
-                    quit();
-                } else {
-                    if (!logged_in || !in_session) {
+                send_message(input);
+            } else {
+                if (sscanf(input, "%s %d %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {
+                    if (strncmp(command, "/login", strlen("/login")) != 0) {
                         input_usage();
                         continue;
                     }
-                    send_message(input);
+                    if (logged_in) {
+                        PRINT("Already logged into a session\n");
+                        continue;
+                    }
+                    bool success = login(client_id, password, server_ip, server_port);
+                    if (success) {
+                        logged_in = true;
+                        FD_SET(status.sockfd, &master);
+                        fdmax = status.sockfd;
+                    }
+                }// Join and Create Session
+                else if (sscanf(input, "%s %d", command, &session_id) == 2) {
+                    if (strncmp(command, "/joinsession", strlen("/joinsession")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (in_session) {
+                            PRINT("Already in session\n");
+                            continue;
+                        }
+                        bool success = join_session(session_id);
+                        if (success) in_session = true;
+                    } else if (strncmp(command, "/createsession", strlen("/createsession")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (in_session) {
+                            PRINT("Already in session\n");
+                            continue;
+                        }
+                        create_session(session_id);
+                    } else {
+                        input_usage();
+                    }
+                }// Logout, list, quit or message
+                else if (sscanf(input, "%s", command) == 1) {
+                    if (strncmp(command, "/logout", strlen("/logout")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (in_session) {
+                            bool success = leave_session();
+                            if (success) in_session = false;
+                            else continue;
+                        }
+                        bool success = logout();
+                        if (success) logged_in = false;
+                    } else if (strncmp(command, "/leavesession", strlen("/leavesession")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (!in_session) {
+                            PRINT("Not entered into any session\n");
+                            continue;
+                        }
+                        leave_session();
+                        assert(in_session == true);
+                        in_session = false;
+                    } else if (strncmp(command, "/list", strlen("/list")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        list();
+                    } else if (strncmp(command, "/quit", strlen("/quit")) == 0) {
+                        if (in_session) {
+                            bool success = leave_session();
+                            if (success) in_session = false;
+                            else continue;
+                        }
+                        if (logged_in) {
+                            bool success = logout();
+                            if (success) logged_in = false;
+                            else continue;
+                        }
+                        quit();
+                    } else
+                        input_usage();
+                } else {
+                    input_usage();
                 }
-            } else {
-                input_usage();
             }
         }
     }

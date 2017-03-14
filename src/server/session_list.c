@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "session_list.h"
+#include "user_list.h"
 #include <assert.h>
 
 Session_List* session_list;
@@ -23,7 +24,7 @@ Session* open_session(int id) {
     new_session->session.id = id;
     new_session->session.fd_max = -1;
     new_session->session.num_user = 0;
-    FD_ZERO(&new_session->session.server_ports);
+    FD_ZERO(&new_session->session.client_ports);
     int i;
     for (i = 0; i < MAX_USERS_PER_SESSION; i++)
         new_session->session.users[i] = NULL;
@@ -105,19 +106,21 @@ void add_user_to_session(Session* session, User* user) {
 }
 
 /* Remove the user through iterating*/
-void remove_user_from_session(Session* session, User * user) {
+void remove_user_from_session(Session* session, User_List* user) {
 
     for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
         if (session->users[i] == NULL)
             continue;
 
-        if (session->users[i]->id == user->id) {
+        if (session->users[i]->id == user->user.id) {
             session->users[i] = NULL;
+            
+            FD_CLR(user->fd, &session->client_ports);
             session->num_user--;
             return;
         }
     }
-    fprintf(stderr, "ERROR: Cannot delete User %d in session %d. Does not exist", user->id, session->id);
+    fprintf(stderr, "ERROR: Cannot delete User %d in session %d. Does not exist", user->user.id, session->id);
 }
 
 /* Get a list of users in a session*/
@@ -180,16 +183,21 @@ void get_session_string(char *sess_str) {
     int i = 0;
 
     bzero(sess_str, MAXDATASIZE);
-    strncat(sess_str, "Active: ", MAXDATASIZE);
+    strncat(sess_str, "Active: \n", MAXDATASIZE);
     while (s != NULL) {
         snprintf(id_str, MAXDATASIZE, "Session % d - ", s->session.id);
         strncat(sess_str, id_str, MAXDATASIZE);
+        int count = 0;
         for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
             if (s->session.users[i] == NULL)
                 continue;
             snprintf(user_id_str, MAXDATASIZE, "%d ", s->session.users[i]->id);
             strncat(sess_str, user_id_str, MAXDATASIZE);
+            count++;
         }
+        if (count == 0)
+            snprintf(user_id_str, MAXDATASIZE, "None");
+        strncat(sess_str, user_id_str, MAXDATASIZE);
         strncat(sess_str, "\n", MAXDATASIZE);
         s = s->next;
     }

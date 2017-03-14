@@ -63,7 +63,7 @@ void exitserver(Message* msg, int fd) {
 
     // Remove user from the session
     if (userSession != NULL) {
-        remove_user_from_session(userSession, &(user->user));
+        remove_user_from_session(userSession, user);
 
         // If it is the last user then close the session
         if (is_session_empty(userSession))
@@ -109,7 +109,7 @@ void join(Message* msg, int fd) {
         user->session_id = session_id;
         add_user_to_session(session, &user->user);
         assert(fd == user->fd);
-        FD_SET(fd, &session->server_ports);
+        FD_SET(fd, &session->client_ports);
         if (fd > session->fd_max)
             session->fd_max = fd;
         PRINT("Added User %d to Session %d\n", id, session_id);
@@ -136,7 +136,7 @@ void leave_sess(Message* msg, int fd) {
 
     // Remove the session and the user from the session
     user->session_id = -1;
-    remove_user_from_session(session, &(user->user));
+    remove_user_from_session(session, user);
 
     // If it is the last user then close the session
     if (is_session_empty(session))
@@ -196,11 +196,11 @@ void message(Message* msg, int fd) {
     Session* session = find_session(session_id);
     assert(session != NULL);
 
-    PRINT("BCAST %s: \n", msg->data);
+    PRINT("BCAST: %s", msg->data);
 
     for (int i = 0; i <= session->fd_max; i++) {
 
-        if (FD_ISSET(i, &session->server_ports)) {
+        if (FD_ISSET(i, &session->client_ports)) {
             if (i != fd) {
                 deliver_message(msg, i);
             }

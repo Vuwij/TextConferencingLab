@@ -2,6 +2,7 @@
 #define SESSIONS_H
 
 #include "session.h"
+#include "user_list.h"
 
 typedef struct sess_list {
     Session session;
@@ -16,7 +17,7 @@ void close_session(int id);
 
 void add_user_to_session(Session* session, User* user);
 
-void remove_user_from_session(Session* session, User* user);
+void remove_user_from_session(Session* session, User_List* user);
 
 User** get_users_in_session(Session* session);
 

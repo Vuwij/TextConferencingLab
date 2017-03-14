@@ -5,14 +5,14 @@ FILENAME=Twice.jpg
 make
 
 # CLOSE TESTING PROGRAMS
-#pkill server
+pkill server
 
 echo "Server                           Client 1                         Client 2                          Client 3                          Client 4"
 echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 
 # Starts the server
 cd build/Server
-#./server $PORT &
+./server $PORT &
 cd ../..
 sleep .5
 
