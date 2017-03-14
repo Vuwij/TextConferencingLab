@@ -21,6 +21,8 @@ int authenticate_existing_user(int id, char* password);
 
 User_List* find_active_user(int id);
 
+User_List* find_active_user_fd(int sock_fd);
+
 void add_user(User* user, int fd);
 
 bool delete_user(int id);

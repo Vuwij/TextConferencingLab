@@ -158,7 +158,12 @@ int main(int argc, char *argv[]) {
                             else continue;
                         }
                         bool success = logout();
-                        if (success) logged_in = false;
+                        if (success) {
+                            logged_in = false;
+                            FD_CLR(status.sockfd, &master);
+                            status.sockfd = -1;
+                            fdmax = STDIN;
+                        }
                     } else if (strncmp(command, "/leavesession", strlen("/leavesession")) == 0) {
                         if (!logged_in) {
                             PRINT("Not logged into any server\n");

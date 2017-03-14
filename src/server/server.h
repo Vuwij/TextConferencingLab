@@ -30,4 +30,6 @@ extern fd_set master; // master file descriptor list
 
 void handle_client_message(Message* msg, int fd);
 
+void exitserver(Message* msg, int fd);
+
 #endif /* SERVER_H */

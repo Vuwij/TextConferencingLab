@@ -63,7 +63,6 @@ void close_session(int session_id) {
     }
 
 
-
     if (curr == NULL) {
         fprintf(stderr, "Attempted to close session %d, but it doesn't exists\n", session_id);
         return;
@@ -84,7 +83,7 @@ void close_session(int session_id) {
 void add_user_to_session(Session* session, User* user) {
 
     int avail_slot = NOT_AVAIL;
-
+    assert(session != NULL);
     // Check for existing user
     for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
         if (session->users[i] == NULL) {
@@ -92,7 +91,6 @@ void add_user_to_session(Session* session, User* user) {
                 avail_slot = i;
             continue;
         }
-
         if (session->users[i]->id == user->id)
             fprintf(stderr, "ERROR: User %d already exists in session %d", user->id, session->id);
     }
@@ -114,7 +112,7 @@ void remove_user_from_session(Session* session, User_List* user) {
 
         if (session->users[i]->id == user->user.id) {
             session->users[i] = NULL;
-            
+
             FD_CLR(user->fd, &session->client_ports);
             session->num_user--;
             return;
