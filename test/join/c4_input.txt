@@ -1,3 +1,14 @@
 /login 4 User4 127.0.0.1 5007
 /joinsession 1
-Hello World
+Hello Client 1
+/leavesession
+/joinsession 2
+Hello Client 2
+/leavesession
+/createsession 3
+/joinsession 3
+Hello Client 3
+/joinsession 2
+Hello Client 2
+/exit
+

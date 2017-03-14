@@ -1,3 +1,9 @@
 /login 2 User2 127.0.0.1 5007
-/joinsession 1
-
+/logout
+/login 2 User2 127.0.0.1 5007
+/logout
+/login 1 User1 127.0.0.1 5007
+/login 1 User2 127.0.0.1 5007
+/logout
+/logout
+/login 1 User1 127.0.0.1 5007
