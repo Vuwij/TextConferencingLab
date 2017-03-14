@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
         // If select returns -1 there was an error, 0 timeOut
         ret = select(fdmax + 1, &read_fds, NULL, NULL, NULL);
         if (ret == -1) {
-            perror("select");
+            perror("select - client");
             exit(4);
         }
         if (ret < 0) {
@@ -124,8 +124,6 @@ int main(int argc, char *argv[]) {
                 else if (sscanf(input, "%s %s", command, session_id_str) == 2) {
                     if (strncmp(command, "/joinsession", strlen("/joinsession")) == 0) {
 
-                        printf("%s\n", session_id_str);
-
                         if (!logged_in) {
                             PRINT("Not logged into any server\n");
                             continue;
@@ -145,7 +143,8 @@ int main(int argc, char *argv[]) {
                             PRINT("Already in session\n");
                             continue;
                         }
-                        create_session(session_id_str);
+                        if (create_session(session_id_str))
+                            in_session = true;
                     } else {
                         input_usage();
                     }

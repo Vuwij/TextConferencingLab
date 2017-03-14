@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-
+#include <stdlib.h>
 #include "../message.h"
 #include "../packet_type.h"
 #include "user_list.h"
@@ -53,11 +52,6 @@ void login(Message* msg, int fd) {
 
 /*Some issue with this need to come back here*/
 void exitserver(Message* msg, int fd) {
-    char s[MAX_NAME];
-    snprintf(s, MAX_NAME, "%s", msg->source);
-    printf("%s\n", msg->source);
-    unsigned id = atoi(s);
-
     // Find the user associated
     User_List* user = find_active_user_fd(fd);
     Session * userSession;
@@ -71,12 +65,11 @@ void exitserver(Message* msg, int fd) {
         // If it is the last user then close the session
         if (is_session_empty(userSession))
             close_session(userSession->id);
-    } else {
-        FD_CLR(fd, &master);
     }
+    FD_CLR(fd, &master);
+
     // Delete User from UserList
     bool deleteSuccess = delete_user(user->user.id);
-    print_active_users();
     if (!deleteSuccess)
         fprintf(stderr, "ERROR: unable to delete user with id %d", user->user.id);
     else

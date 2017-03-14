@@ -109,6 +109,8 @@ bool logout() {
     m.type = EXIT;
     snprintf(m.source, MAX_NAME, "%d", status.client_id);
     deliver_message(&m, status.sockfd);
+    close(status.sockfd);
+    return true;
 }
 
 bool join_session(char *session_name) {
@@ -156,12 +158,13 @@ bool create_session(char *session_id) {
 
     Message* r;
     r = receive_message(status.sockfd);
-    if (r->type == NS_ACK)
+    if (r->type == NS_ACK) {
         PRINT("Session Created\n");
-    else
-        PRINT(r->data);
-
-    join_session(session_id);
+        join_session(session_id);
+        return true;
+    }
+    PRINT(r->data);
+    return false;
 
 }
 

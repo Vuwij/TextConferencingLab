@@ -127,7 +127,7 @@ void listen_for_messages() {
         read_fds = master;
         if (select(fdmax + 1, &read_fds, NULL, NULL, &tv) == -1) {
 
-            perror("select");
+            perror("select - server");
             exit(4);
         }
 
@@ -160,9 +160,8 @@ void listen_for_messages() {
                         // got error or connection closed by client
                         if (nbytes == 0) PRINT("selectserver: socket %d hung up\n", i);
                         else perror("recv");
-
                         exitserver(msg, i);
-                        
+
                     } else {
                         if (DEBUG_MSG) print_message(msg);
                         handle_client_message(msg, i);

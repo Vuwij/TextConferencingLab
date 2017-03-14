@@ -21,7 +21,7 @@
 
 // Debugging Print Section
 #define DEBUG                   1
-#define DEBUG_MSG               1       // Prints packet information on deliver
+#define DEBUG_MSG               0       // Prints packet information on deliver
 
 #define COMM_LOGIN              "/login"
 #define COMM_LOGOUT             "/logout"
