@@ -37,6 +37,8 @@ Message* receive_message(int sockfd) {
         perror("recv");
         exit(1);
     }
+    
+    if(DEBUG_MSG) print_message(msg);
     return msg;
 }
 

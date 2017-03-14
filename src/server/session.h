@@ -9,7 +9,7 @@
 #define NOT_AVAIL -1
 
 typedef struct session {
-    int id;
+    char id[MAXDATASIZE];
     fd_set client_ports;
     int fd_max;
     User* users[MAX_USERS_PER_SESSION];

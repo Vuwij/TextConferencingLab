@@ -12,11 +12,11 @@ bool login(int client_id, char* password, char* server_ip, int server_port);
 
 bool logout();
 
-bool join_session(unsigned session_id);
+bool join_session(char *session_id);
 
 bool leave_session();
 
-bool create_session(unsigned session_id);
+bool create_session(char *session_id);
 
 bool list();
 

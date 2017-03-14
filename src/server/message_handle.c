@@ -85,7 +85,7 @@ void exitserver(Message* msg, int fd) {
 
 void join(Message* msg, int fd) {
     unsigned id = atoi(msg->source);
-    unsigned session_id = atoi(msg->data);
+    char *session_id = msg->data;
 
     Message r;
 
@@ -100,7 +100,7 @@ void join(Message* msg, int fd) {
     } else if (session == NULL) {
         r.type = JN_NAK;
         strncpy(r.data, "Session Doesn't Exist\n", strlen("Session Doesn't Exist\n"));
-    } else if (user->session_id >= 0) {
+    } else if (strcmp(user->session_id, "") != 0) {
         r.type = JN_NAK;
         strncpy(r.data, "Joined Session Already\n", strlen("Joined Session Already\n"));
     } else {
@@ -109,13 +109,13 @@ void join(Message* msg, int fd) {
         strncpy(r.data, msg->data, sizeof (msg->data));
 
         // Add user to the session and vice versa
-        user->session_id = session_id;
+        strcpy(user->session_id, session_id);
         add_user_to_session(session, &user->user);
         assert(fd == user->fd);
         FD_SET(fd, &session->client_ports);
         if (fd > session->fd_max)
             session->fd_max = fd;
-        PRINT("Added User %d to Session %d\n", id, session_id);
+        PRINT("Added User %d to Session %s\n", id, session_id);
     }
 
     deliver_message(&r, fd);
@@ -128,8 +128,8 @@ void leave_sess(Message* msg, int fd) {
     User_List* user = find_active_user(id);
     assert(user != NULL);
 
-    unsigned session_id = user->session_id;
-    if (session_id == -1) {
+    char *session_id = user->session_id;
+    if (strcmp(user->session_id, "") == 0) {
         PRINT("User Has not Joined Any session\n");
         return;
     }
@@ -138,7 +138,7 @@ void leave_sess(Message* msg, int fd) {
     assert(session != NULL);
 
     // Remove the session and the user from the session
-    user->session_id = -1;
+    strcpy(user->session_id, "");
     remove_user_from_session(session, user);
 
     // If it is the last user then close the session
@@ -148,7 +148,7 @@ void leave_sess(Message* msg, int fd) {
 
 void new_sess(Message* msg, int fd) {
     unsigned id = atoi(msg->source);
-    unsigned session_id = atoi(msg->data);
+    char *session_id = msg->data;
 
     // Find the user associated
     User_List* user = find_active_user(id);
@@ -161,31 +161,12 @@ void new_sess(Message* msg, int fd) {
         strncpy(r.data, "Session Already Exists\n", strlen("Session Already Exists\n"));
         r.type = NS_NAK;
     } else {
-        PRINT("Session %d added\n", session_id);
+        PRINT("Session %s added\n", session_id);
         r.type = NS_ACK;
         open_session(session_id);
 
     }
     deliver_message(&r, fd);
-
-
-    //If the session didn't exist but then made one then join the session
-    if (session == NULL) {
-        session = find_session(session_id);
-        r.type = JN_ACK;
-        PRINT("%s\n", msg->data);
-        strncpy(r.data, msg->data, sizeof (msg->data));
-
-        // Add user to the session and vice versa
-        user->session_id = session_id;
-        add_user_to_session(session, &(user->user));
-        assert(fd == user->fd);
-        FD_SET(fd, &session->client_ports);
-        if (fd > session->fd_max)
-            session->fd_max = fd;
-        PRINT("Added User %d to Session %d\n", id, session_id);
-        deliver_message(&r, fd);
-    }
 }
 
 void query(Message* msg, int fd) {
@@ -209,10 +190,10 @@ void message(Message* msg, int fd) {
     User_List* user = find_active_user(id);
     assert(user != NULL);
 
-    int session_id = user->session_id;
+    char *session_id = user->session_id;
 
     // If the user has not joined the session
-    if (session_id == -1)
+    if (strcmp(session_id, "") == 0)
         return;
 
     Session* session = find_session(session_id);

@@ -9,11 +9,11 @@ typedef struct sess_list {
     struct sess_list* next;
 } Session_List;
 
-Session* open_session(int id);
+Session* open_session(char* id);
 
-Session* find_session(int id);
+Session* find_session(char* id);
 
-void close_session(int id);
+void close_session(char* id);
 
 void add_user_to_session(Session* session, User* user);
 

@@ -65,7 +65,7 @@ void add_user(User* user, int fd) {
     User_List* new_user = (User_List*) malloc(sizeof (User_List));
     new_user->user = *user;
     new_user->next = NULL;
-    new_user->session_id = -1;
+    strcpy(new_user->session_id, "");
     new_user->fd = fd;
 
     if (online_users == NULL) {
@@ -109,7 +109,7 @@ void print_active_users() {
 
     User_List* curr = online_users;
     while (curr != NULL) {
-        PRINT("%d\t%d\t%d\n", curr->user.id, curr->fd, curr->session_id);
+        PRINT("%d\t%d\t%s\n", curr->user.id, curr->fd, curr->session_id);
         curr = curr->next;
     }
 }

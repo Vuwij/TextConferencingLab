@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "user.h"
+#include "../constants.h"
 
 #define ERR_NO 0
 #define ERR_LOGGED_IN 1
@@ -12,7 +13,7 @@
 
 typedef struct user_list {
     User user;
-    int session_id;
+    char session_id[MAXDATASIZE];
     int fd;
     struct user_list *next;
 } User_List;

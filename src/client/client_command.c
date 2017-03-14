@@ -111,13 +111,13 @@ bool logout() {
     deliver_message(&m, status.sockfd);
 }
 
-bool join_session(unsigned session_id) {
-    PRINT("Joining session %d\n", session_id);
+bool join_session(char *session_name) {
+    PRINT("Joining session %s\n", session_name);
 
     Message m;
     m.type = JOIN;
     snprintf(m.source, MAX_NAME, "%d", status.client_id);
-    snprintf(m.data, MAX_DATA, "%d", session_id);
+    snprintf(m.data, MAX_DATA, "%s", session_name);
     deliver_message(&m, status.sockfd);
 
     Message* r;
@@ -145,13 +145,13 @@ bool leave_session() {
     return true;
 }
 
-bool create_session(unsigned session_id) {
-    PRINT("Creating session %d\n", session_id);
+bool create_session(char *session_id) {
+    PRINT("Creating session %s\n", session_id);
 
     Message m;
     m.type = NEW_SESS;
     snprintf(m.source, MAX_NAME, "%d", status.client_id);
-    snprintf(m.data, MAX_DATA, "%d", session_id);
+    snprintf(m.data, MAX_DATA, "%s", session_id);
     deliver_message(&m, status.sockfd);
 
     Message* r;
@@ -160,6 +160,8 @@ bool create_session(unsigned session_id) {
         PRINT("Session Created\n");
     else
         PRINT(r->data);
+
+    join_session(session_id);
 
 }
 
@@ -173,10 +175,11 @@ bool list() {
 
     Message* r;
     r = receive_message(status.sockfd);
+
     if (r->type == QU_ACK)
         PRINT(r->data);
     else
-        PRINT("Invalid packet %d", (int) m.type);
+        PRINT("Invalid packet %d\n", (int) r->type);
 }
 
 bool quit() {

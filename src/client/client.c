@@ -51,6 +51,7 @@ int main(int argc, char *argv[]) {
     int client_id;
     char password[MAXBUFSIZE];
     int session_id;
+    char session_id_str[MAXDATASIZE];
 
     // Buffer for parsing command and arguments
     char input[100];
@@ -120,8 +121,11 @@ int main(int argc, char *argv[]) {
                         fdmax = status.sockfd;
                     }
                 }// Join and Create Session
-                else if (sscanf(input, "%s %d", command, &session_id) == 2) {
+                else if (sscanf(input, "%s %s", command, session_id_str) == 2) {
                     if (strncmp(command, "/joinsession", strlen("/joinsession")) == 0) {
+
+                        printf("%s\n", session_id_str);
+
                         if (!logged_in) {
                             PRINT("Not logged into any server\n");
                             continue;
@@ -130,7 +134,7 @@ int main(int argc, char *argv[]) {
                             PRINT("Already in session\n");
                             continue;
                         }
-                        bool success = join_session(session_id);
+                        bool success = join_session(session_id_str);
                         if (success) in_session = true;
                     } else if (strncmp(command, "/createsession", strlen("/createsession")) == 0) {
                         if (!logged_in) {
@@ -141,7 +145,7 @@ int main(int argc, char *argv[]) {
                             PRINT("Already in session\n");
                             continue;
                         }
-                        create_session(session_id);
+                        create_session(session_id_str);
                     } else {
                         input_usage();
                     }

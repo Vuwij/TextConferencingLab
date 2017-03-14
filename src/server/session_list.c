@@ -17,11 +17,11 @@
 
 Session_List* session_list;
 
-Session* open_session(int id) {
+Session* open_session(char *id) {
     Session_List* curr = session_list;
     Session_List* new_session = (Session_List*) malloc(sizeof (Session_List));
     new_session->next = NULL;
-    new_session->session.id = id;
+    strcpy(new_session->session.id, id);
     new_session->session.fd_max = -1;
     new_session->session.num_user = 0;
     FD_ZERO(&new_session->session.client_ports);
@@ -41,22 +41,22 @@ Session* open_session(int id) {
     return &(new_session->session);
 }
 
-Session* find_session(int id) {
+Session* find_session(char *id) {
     Session_List* curr = session_list;
     while (curr != NULL) {
-        if (curr->session.id == id)
+        if (strcmp(curr->session.id, id) == 0)
             return &(curr->session);
         curr = curr->next;
     }
     return NULL;
 }
 
-void close_session(int session_id) {
+void close_session(char *session_id) {
     Session_List* curr = session_list;
     Session_List* prev = NULL;
 
     while (curr != NULL) {
-        if (curr->session.id == session_id)
+        if (strcmp(curr->session.id, session_id) == 0)
             break;
         prev = curr;
         curr = curr->next;
@@ -64,7 +64,7 @@ void close_session(int session_id) {
 
 
     if (curr == NULL) {
-        fprintf(stderr, "Attempted to close session %d, but it doesn't exists\n", session_id);
+        fprintf(stderr, "Attempted to close session %s, but it doesn't exists\n", session_id);
         return;
     }
 
@@ -147,12 +147,6 @@ bool is_session_empty(Session * session) {
         return true;
     else
         return false;
-
-    //    for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
-    //        if (session->users[i] != NULL)
-    //            return false;
-    //    }
-    //    return true;
 }
 
 void print_active_sessions() {
@@ -161,7 +155,7 @@ void print_active_sessions() {
     Session_List* s = session_list;
 
     while (s != NULL) {
-        PRINT("Session %d\n", s->session.id);
+        PRINT("Session %s\n", s->session.id);
 
         for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
             if (s->session.users[i] == NULL)
@@ -183,7 +177,7 @@ void get_session_string(char *sess_str) {
     bzero(sess_str, MAXDATASIZE);
     strncat(sess_str, "Active: \n", MAXDATASIZE);
     while (s != NULL) {
-        snprintf(id_str, MAXDATASIZE, "Session % d - ", s->session.id);
+        snprintf(id_str, MAXDATASIZE, "Session %s - ", s->session.id);
         strncat(sess_str, id_str, MAXDATASIZE);
         int count = 0;
         for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {

@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <limits.h>
-#define PRINT_PACKETS           1       // For testing file
 
 #define MAXBUFSIZE              20      // For string length
 #define MAXDATASIZE             1000    // max number of bytes we can get at once
@@ -22,7 +21,7 @@
 
 // Debugging Print Section
 #define DEBUG                   1
-#define DEBUG_MSG               0       // Prints packet information on deliver
+#define DEBUG_MSG               1       // Prints packet information on deliver
 
 #define COMM_LOGIN              "/login"
 #define COMM_LOGOUT             "/logout"
