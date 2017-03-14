@@ -1,0 +1,9 @@
+/login 2 User2 127.0.0.1 5007
+/joinsession 0
+/joinsession -5
+/joinsession A
+/joinsession 0 1
+/joinsession /joinsession
+/joinsession 1
+/joinsession Session_1
+

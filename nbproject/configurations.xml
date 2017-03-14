@@ -46,10 +46,6 @@
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
       <itemPath>autotester.sh</itemPath>
-      <itemPath>test/c1_input.txt</itemPath>
-      <itemPath>test/c2_input.txt</itemPath>
-      <itemPath>test/c3_input.txt</itemPath>
-      <itemPath>test/c4_input.txt</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

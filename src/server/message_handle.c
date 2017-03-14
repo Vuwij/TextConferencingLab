@@ -105,7 +105,6 @@ void join(Message* msg, int fd) {
         strncpy(r.data, "Joined Session Already\n", strlen("Joined Session Already\n"));
     } else {
         r.type = JN_ACK;
-        PRINT("%s\n", msg->data);
         strncpy(r.data, msg->data, sizeof (msg->data));
 
         // Add user to the session and vice versa
