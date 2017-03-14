@@ -161,9 +161,8 @@ void listen_for_messages() {
                         if (nbytes == 0) PRINT("selectserver: socket %d hung up\n", i);
                         else perror("recv");
 
-                        FD_CLR(i, &master); // remove from master set
-                        close(i); // close the stream
-
+                        exitserver(msg, i);
+                        
                     } else {
                         if (DEBUG_MSG) print_message(msg);
                         handle_client_message(msg, i);

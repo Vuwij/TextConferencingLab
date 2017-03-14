@@ -49,6 +49,16 @@ User_List* find_active_user(int id) {
     return NULL;
 }
 
+User_List* find_active_user_fd(int sock_fd) {
+    User_List* next = online_users;
+    while (next != NULL) {
+        if (next->fd == sock_fd)
+            return next;
+        next = next->next;
+    }
+    return NULL;
+}
+
 void add_user(User* user, int fd) {
     User_List* curr = online_users;
 

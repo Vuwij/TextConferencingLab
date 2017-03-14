@@ -55,11 +55,14 @@ void login(Message* msg, int fd) {
 void exitserver(Message* msg, int fd) {
     char s[MAX_NAME];
     snprintf(s, MAX_NAME, "%s", msg->source);
+    printf("%s\n", msg->source);
     unsigned id = atoi(s);
 
     // Find the user associated
-    User_List* user = find_active_user(id);
-    Session* userSession = find_session(user->session_id);
+    User_List* user = find_active_user_fd(fd);
+    Session * userSession;
+    if (user != NULL)
+        userSession = find_session(user->session_id);
 
     // Remove user from the session
     if (userSession != NULL) {
@@ -68,16 +71,16 @@ void exitserver(Message* msg, int fd) {
         // If it is the last user then close the session
         if (is_session_empty(userSession))
             close_session(userSession->id);
+    } else {
+        FD_CLR(fd, &master);
     }
-
     // Delete User from UserList
-    bool deleteSuccess = delete_user(id);
+    bool deleteSuccess = delete_user(user->user.id);
+    print_active_users();
     if (!deleteSuccess)
-        fprintf(stderr, "ERROR: unable to delete user with id %d", id);
+        fprintf(stderr, "ERROR: unable to delete user with id %d", user->user.id);
     else
         close(fd);
-    FD_CLR(fd, &master);
-    assert(!FD_ISSET(fd, &master));
 }
 
 void join(Message* msg, int fd) {
@@ -161,9 +164,28 @@ void new_sess(Message* msg, int fd) {
         PRINT("Session %d added\n", session_id);
         r.type = NS_ACK;
         open_session(session_id);
-    }
 
+    }
     deliver_message(&r, fd);
+
+
+    //If the session didn't exist but then made one then join the session
+    if (session == NULL) {
+        session = find_session(session_id);
+        r.type = JN_ACK;
+        PRINT("%s\n", msg->data);
+        strncpy(r.data, msg->data, sizeof (msg->data));
+
+        // Add user to the session and vice versa
+        user->session_id = session_id;
+        add_user_to_session(session, &(user->user));
+        assert(fd == user->fd);
+        FD_SET(fd, &session->client_ports);
+        if (fd > session->fd_max)
+            session->fd_max = fd;
+        PRINT("Added User %d to Session %d\n", id, session_id);
+        deliver_message(&r, fd);
+    }
 }
 
 void query(Message* msg, int fd) {
