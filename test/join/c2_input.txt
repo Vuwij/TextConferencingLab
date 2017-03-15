@@ -1,5 +1,6 @@
 /login 2 User2 127.0.0.1 5007
 /joinsession 1
 Hello Client 1
+/leavesession
 /createsession 2
 

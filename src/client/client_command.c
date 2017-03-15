@@ -43,9 +43,9 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return false;
     }
-
     // loop through all the results and make a socket
     for (p = servinfo; p != NULL; p = p->ai_next) {
+
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
             perror("client: socket");
@@ -56,6 +56,7 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
             perror("client: connect");
             continue;
         }
+
         break;
     }
 
@@ -68,12 +69,6 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr), s, sizeof s);
     freeaddrinfo(servinfo);
 
-    // Update Status with the client and server socket and port
-    status.sockfd = sockfd;
-    status.p = p;
-    strncpy(status.connected_server_ip, server_ip, MAXBUFSIZE);
-    status.connected_server_port = server_port;
-
     // Send a message and get an reply
     PRINT("Connecting to %s\n", s);
     Message m;
@@ -84,19 +79,27 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
     strncpy(m.data, password, MAX_DATA);
 
     PRINT("Logging In\n");
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, sockfd);
 
     Message* r;
-    r = receive_message(status.sockfd);
+    r = receive_message(sockfd);
+    
+    // Update Status with the client and server socket and port
+    status.sockfd = sockfd;
+    status.p = p;
+    strncpy(status.connected_server_ip, server_ip, MAXBUFSIZE);
+    status.connected_server_port = server_port;
 
+    if (r->type == LO_NAK) {
+        PRINT("Login Failed: %s\n", r->data);
+        status.sockfd = -1;
+    }
+    
     if (r->type == LO_ACK) {
         PRINT("Login Succeeded\n");
         status.client_id = client_id;
         strncpy(status.password, password, MAXBUFSIZE);
         return true;
-    }
-    if (r->type == LO_NAK) {
-        PRINT("Login Failed: %s\n", r->data);
     }
 
     return false;

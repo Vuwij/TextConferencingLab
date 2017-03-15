@@ -1,5 +1,5 @@
 /login 1 User1 127.0.0.1 5007
 /login 2 User2 127.0.0.1 5007
 /login 3 User3 127.0.0.1 5007
-/exit
+/quit
 

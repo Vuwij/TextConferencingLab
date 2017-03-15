@@ -8,7 +8,9 @@ Hello Client 2
 /createsession 3
 /joinsession 3
 Hello Client 3
+/leavesession
 /joinsession 2
 Hello Client 2
-/exit
+/leavesession
+/quit
 

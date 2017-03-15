@@ -3,4 +3,4 @@
 Hello World
 /leavesession
 /createsession 2
-/exit
+/quit

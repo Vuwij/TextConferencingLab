@@ -48,6 +48,12 @@ void login(Message* msg, int fd) {
             exit(0);
     }
     deliver_message(&m, fd);
+    
+    // Close the port from the server
+    if(authen_status != ERR_NO) {
+        FD_CLR(fd, &master);
+        close(fd);
+    }
 }
 
 /*Some issue with this need to come back here*/
@@ -194,14 +200,13 @@ void message(Message* msg, int fd) {
     PRINT("BCAST: %s", msg->data);
 
     for (int i = 0; i <= session->fd_max; i++) {
-
         if (FD_ISSET(i, &session->client_ports)) {
             if (i != fd) {
+                //PRINT("Deliver to %d\n", session->client_ports);
                 deliver_message(msg, i);
             }
         }
     }
-
 }
 
 /* Handles the message */

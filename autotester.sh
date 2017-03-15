@@ -25,13 +25,13 @@ do
 
     # Starts the clients
     build/Client/client "1" < "$test_dir/c1_input.txt" &
-    sleep .01
+    sleep .2
     build/Client/client "2" < "$test_dir/c2_input.txt" &
-    sleep .01
+    sleep .2
     build/Client/client "3" < "$test_dir/c3_input.txt" &
-    sleep .01
+    sleep .2
     build/Client/client "4" < "$test_dir/c4_input.txt" &
     sleep 1
     echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-    sleep 5
+    sleep 2
 done
