@@ -28,4 +28,4 @@
 *.out
 *.app
 /build/
-/nbproject/private.xml
+/nbproject/private/
