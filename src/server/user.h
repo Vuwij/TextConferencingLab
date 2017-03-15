@@ -1,9 +1,11 @@
 #ifndef USER_H
 #define	USER_H
 
+#include "../constants.h"
+
 typedef struct user {
-    int id;
-    char *password;
+    char id[MAXDATASIZE];
+    char password[MAXDATASIZE];
 } User;
 
 #endif

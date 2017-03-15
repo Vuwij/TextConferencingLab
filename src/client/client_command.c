@@ -20,8 +20,8 @@ void *get_in_addr(struct sockaddr *sa) {
     return &(((struct sockaddr_in6*) sa)->sin6_addr);
 }
 
-bool login(int client_id, char* password, char* server_ip, int server_port) {
-    PRINT("Login: %d %s at %s %d\n", client_id, password, server_ip, server_port);
+bool login(char* client_id, char* password, char* server_ip, int server_port) {
+    PRINT("Login: %s %s at %s %d\n", client_id, password, server_ip, server_port);
 
     if (!(MIN_PORTNUM <= server_port && server_port <= MAX_PORTNUM)) {
         fprintf(stderr, "port = %d should be within range [%d:%d]\n", server_port, MIN_PORTNUM, MAX_PORTNUM);
@@ -45,7 +45,6 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
     }
     // loop through all the results and make a socket
     for (p = servinfo; p != NULL; p = p->ai_next) {
-
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
             perror("client: socket");
@@ -75,7 +74,7 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
     m.type = LOGIN;
     bzero(m.source, MAX_NAME);
     bzero(m.data, MAX_DATA);
-    snprintf(m.source, MAX_NAME, "%d", client_id);
+    strncpy(m.source, client_id, MAX_NAME);
     strncpy(m.data, password, MAX_DATA);
 
     PRINT("Logging In\n");
@@ -97,11 +96,12 @@ bool login(int client_id, char* password, char* server_ip, int server_port) {
     
     if (r->type == LO_ACK) {
         PRINT("Login Succeeded\n");
-        status.client_id = client_id;
+        strncpy(status.client_id, client_id, MAXBUFSIZE);
         strncpy(status.password, password, MAXBUFSIZE);
+        free(r);
         return true;
     }
-
+    free(r);
     return false;
 }
 
@@ -110,7 +110,7 @@ bool logout() {
 
     Message m;
     m.type = EXIT;
-    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    strncpy(m.source, status.client_id, MAX_NAME);
     deliver_message(&m, status.sockfd);
     close(status.sockfd);
     return true;
@@ -121,7 +121,7 @@ bool join_session(char *session_name) {
 
     Message m;
     m.type = JOIN;
-    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
     snprintf(m.data, MAX_DATA, "%s", session_name);
     deliver_message(&m, status.sockfd);
 
@@ -129,13 +129,16 @@ bool join_session(char *session_name) {
     r = receive_message(status.sockfd);
     if (r->type == JN_NAK) {
         PRINT(r->data);
+        free(r);
         return false;
     } else if (r->type == JN_ACK) {
         PRINT("Joined Session %s\n", r->data);
+        free(r);
         return true;
     }
 
     PRINT("Received wrong packet from server\n");
+    free(r);
     return false;
 }
 
@@ -144,7 +147,7 @@ bool leave_session() {
 
     Message m;
     m.type = LEAVE_SESS;
-    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
     deliver_message(&m, status.sockfd);
 
     return true;
@@ -155,7 +158,7 @@ bool create_session(char *session_id) {
 
     Message m;
     m.type = NEW_SESS;
-    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
     snprintf(m.data, MAX_DATA, "%s", session_id);
     deliver_message(&m, status.sockfd);
 
@@ -164,11 +167,12 @@ bool create_session(char *session_id) {
     if (r->type == NS_ACK) {
         PRINT("Session Created\n");
         join_session(session_id);
+        free(r);
         return true;
     }
     PRINT(r->data);
+    free(r);
     return false;
-
 }
 
 bool list() {
@@ -176,16 +180,18 @@ bool list() {
 
     Message m;
     m.type = QUERY;
-    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
     deliver_message(&m, status.sockfd);
 
     Message* r;
     r = receive_message(status.sockfd);
-
+    
     if (r->type == QU_ACK)
         PRINT(r->data);
     else
         PRINT("Invalid packet %d\n", (int) r->type);
+    
+    free(r);
 }
 
 bool quit() {
@@ -200,7 +206,7 @@ bool send_message(char* message) {
 
     Message m;
     m.type = MESSAGE;
-    snprintf(m.source, MAX_NAME, "%d", status.client_id);
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
     strncpy(m.data, message, MAX_DATA);
     deliver_message(&m, status.sockfd);
 

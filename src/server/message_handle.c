@@ -13,19 +13,16 @@ void login(Message* msg, int fd) {
 
     // Check User ID and Password
     char* s = msg->source;
-    unsigned id = atoi(s);
+    char* id = s;
     char* pass = msg->data;
 
     Message m;
-    int authen_status = authenticate_existing_user(id, pass);
+    User* found_user;
+    Login_Error authen_status = authenticate_existing_user(id, pass, &found_user);
     switch (authen_status) {
         case ERR_NO:
             PRINT("User Valid\n");
-            // Add the user to the database
-            User* user = (User*) malloc(sizeof (User));
-            user->id = id;
-            user->password = pass;
-            add_user(user, fd);
+            add_user(found_user, fd);
             m.type = LO_ACK;
             break;
         case ERR_LOGGED_IN:
@@ -75,15 +72,15 @@ void exitserver(Message* msg, int fd) {
     FD_CLR(fd, &master);
 
     // Delete User from UserList
-    bool deleteSuccess = delete_user(user->user.id);
+    bool deleteSuccess = delete_user(user->user->id);
     if (!deleteSuccess)
-        fprintf(stderr, "ERROR: unable to delete user with id %d", user->user.id);
+        fprintf(stderr, "ERROR: unable to delete user with id %d", user->user->id);
     else
         close(fd);
 }
 
 void join(Message* msg, int fd) {
-    unsigned id = atoi(msg->source);
+    char *id = msg->source;
     char *session_id = msg->data;
 
     Message r;
@@ -108,19 +105,19 @@ void join(Message* msg, int fd) {
 
         // Add user to the session and vice versa
         strcpy(user->session_id, session_id);
-        add_user_to_session(session, &user->user);
+        add_user_to_session(session, user->user);
         assert(fd == user->fd);
         FD_SET(fd, &session->client_ports);
         if (fd > session->fd_max)
             session->fd_max = fd;
-        PRINT("Added User %d to Session %s\n", id, session_id);
+        PRINT("Added User %s to Session %s\n", id, session_id);
     }
 
     deliver_message(&r, fd);
 }
 
 void leave_sess(Message* msg, int fd) {
-    unsigned id = atoi(msg->source);
+    char* id = msg->source;
 
     // Find the user associated
     User_List* user = find_active_user(id);
@@ -145,13 +142,14 @@ void leave_sess(Message* msg, int fd) {
 }
 
 void new_sess(Message* msg, int fd) {
-    unsigned id = atoi(msg->source);
+    char *id = msg->source;
     char *session_id = msg->data;
 
     // Find the user associated
     User_List* user = find_active_user(id);
+    
     assert(user != NULL);
-
+    
     // Check that the session exists
     Session* session = find_session(session_id);
     Message r;
@@ -182,7 +180,7 @@ void query(Message* msg, int fd) {
 }
 
 void message(Message* msg, int fd) {
-    unsigned id = atoi(msg->source);
+    char *id = msg->source;
 
     // Find the user associated
     User_List* user = find_active_user(id);

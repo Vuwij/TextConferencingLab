@@ -1,4 +1,4 @@
-/login 3 User3 127.0.0.1 5007
+/login User3 User3 127.0.0.1 5007
 /joinsession 1
 Hello Client 1
 /leavesession

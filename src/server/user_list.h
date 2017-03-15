@@ -6,27 +6,29 @@
 #include "user.h"
 #include "../constants.h"
 
-#define ERR_NO 0
-#define ERR_LOGGED_IN 1
-#define ERR_ID_NO_MATCH 2
-#define ERR_PASS_NO_MATCH 3
+typedef enum login_error {
+    ERR_NO = 0,
+    ERR_LOGGED_IN = 1,
+    ERR_ID_NO_MATCH = 2,
+    ERR_PASS_NO_MATCH = 3
+} Login_Error;
 
 typedef struct user_list {
-    User user;
+    User* user;
     char session_id[MAXDATASIZE];
     int fd;
     struct user_list *next;
 } User_List;
 
-int authenticate_existing_user(int id, char* password);
+Login_Error authenticate_existing_user(const char *id, const char* password, User** user_ret);
 
-User_List* find_active_user(int id);
+User_List* find_active_user(const char *id);
 
 User_List* find_active_user_fd(int sock_fd);
 
 void add_user(User* user, int fd);
 
-bool delete_user(int id);
+bool delete_user(char *id);
 
 void print_active_users();
 

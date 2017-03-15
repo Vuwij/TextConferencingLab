@@ -48,10 +48,9 @@ int main(int argc, char *argv[]) {
     // User Input
     char server_ip[MAXBUFSIZE];
     int server_port;
-    int client_id;
+    char client_id[MAXBUFSIZE];
     char password[MAXBUFSIZE];
-    int session_id;
-    char session_id_str[MAXDATASIZE];
+    char session_id[MAXDATASIZE];
 
     // Buffer for parsing command and arguments
     char input[100];
@@ -105,7 +104,7 @@ int main(int argc, char *argv[]) {
                 }
                 send_message(input);
             } else {
-                if (sscanf(input, "%s %d %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {
+                if (sscanf(input, "%s %s %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {
                     if (strncmp(command, "/login", strlen("/login")) != 0) {
                         input_usage();
                         continue;
@@ -121,7 +120,7 @@ int main(int argc, char *argv[]) {
                         fdmax = status.sockfd;
                     }
                 }// Join and Create Session
-                else if (sscanf(input, "%s %s", command, session_id_str) == 2) {
+                else if (sscanf(input, "%s %s", command, session_id) == 2) {
                     if (strncmp(command, "/joinsession", strlen("/joinsession")) == 0) {
 
                         if (!logged_in) {
@@ -132,7 +131,7 @@ int main(int argc, char *argv[]) {
                             PRINT("Already in session\n");
                             continue;
                         }
-                        bool success = join_session(session_id_str);
+                        bool success = join_session(session_id);
                         if (success) in_session = true;
                     } else if (strncmp(command, "/createsession", strlen("/createsession")) == 0) {
                         if (!logged_in) {
@@ -143,7 +142,7 @@ int main(int argc, char *argv[]) {
                             PRINT("Already in session\n");
                             continue;
                         }
-                        if (create_session(session_id_str))
+                        if (create_session(session_id))
                             in_session = true;
                     } else {
                         input_usage();

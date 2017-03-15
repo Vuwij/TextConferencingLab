@@ -4,9 +4,9 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>Text Conferencing Lab</name>
-            <c-extensions/>
+            <c-extensions>c</c-extensions>
             <cpp-extensions/>
-            <header-extensions>c,h</header-extensions>
+            <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
@@ -23,6 +23,14 @@
                 </confElem>
                 <confElem>
                     <name>AutoTester</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Server-Valgrind</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Client_Valgrind</name>
                     <type>1</type>
                 </confElem>
             </confList>

@@ -31,7 +31,7 @@ DEFAULTCONF=Client
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=Client Server AutoTester 
+ALLCONFS=Client Server AutoTester Server-Valgrind Client_Valgrind 
 
 
 # build

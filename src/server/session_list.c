@@ -110,7 +110,7 @@ void remove_user_from_session(Session* session, User_List* user) {
         if (session->users[i] == NULL)
             continue;
 
-        if (session->users[i]->id == user->user.id) {
+        if (session->users[i]->id == user->user->id) {
             session->users[i] = NULL;
 
             FD_CLR(user->fd, &session->client_ports);
@@ -118,7 +118,7 @@ void remove_user_from_session(Session* session, User_List* user) {
             return;
         }
     }
-    fprintf(stderr, "ERROR: Cannot delete User %d in session %d. Does not exist", user->user.id, session->id);
+    fprintf(stderr, "ERROR: Cannot delete User %d in session %d. Does not exist", user->user->id, session->id);
 }
 
 /* Get a list of users in a session*/
@@ -161,7 +161,7 @@ void print_active_sessions() {
             if (s->session.users[i] == NULL)
                 continue;
 
-            PRINT("  User %d\n", s->session.users[i]->id);
+            PRINT("  User %s\n", s->session.users[i]->id);
         }
         s = s->next;
     }
@@ -183,7 +183,7 @@ void get_session_string(char *sess_str) {
         for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
             if (s->session.users[i] == NULL)
                 continue;
-            snprintf(user_id_str, MAXDATASIZE, "%d ", s->session.users[i]->id);
+            snprintf(user_id_str, MAXDATASIZE, "%s ", s->session.users[i]->id);
             strncat(sess_str, user_id_str, MAXDATASIZE);
             count++;
         }

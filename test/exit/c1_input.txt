@@ -1,6 +1,6 @@
-/login 1 User1 127.0.0.1 5007
+/login User1 User1 127.0.0.1 5007
 /createsession 1
 /logout
-/login 2 User2 127.0.0.1 5007
+/login User2 User2 127.0.0.1 5007
 /createsession 1
 

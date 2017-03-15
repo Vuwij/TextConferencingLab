@@ -13,22 +13,21 @@ User_List* online_users;
 
 // Global list of registered users
 User registered_users[] = {
-    {1, "User1"},
-    {2, "User2"},
-    {3, "User3"},
-    {4, "User4"}
+    {"User1", "User1"},
+    {"User2", "User2"},
+    {"User3", "User3"},
+    {"User4", "User4"}
 };
 
-int authenticate_existing_user(int id, char* password) {
+Login_Error authenticate_existing_user(const char *id, const char* password, User** user_ret) {
     for (int i = 0; i < NELEMS(registered_users); i++) {
-        if (registered_users[i].id == id) {
+        if (strcmp(registered_users[i].id, id) == 0) {
             if (strncmp(registered_users[i].password, password, sizeof (password)) == 0) {
+                *user_ret = &registered_users[i];
                 // Check if there is anyone logged in with the same ID
-                if (find_active_user(id) == NULL)
-                    // Not found duplicate user No ERROR
+                if (find_active_user(id) == NULL) 
                     return ERR_NO;
                 else
-                    // Found duplicate user
                     return ERR_LOGGED_IN;
             } else {
                 // Password failed
@@ -39,10 +38,10 @@ int authenticate_existing_user(int id, char* password) {
     return ERR_ID_NO_MATCH;
 }
 
-User_List* find_active_user(int id) {
+User_List* find_active_user(const char *id) {
     User_List* next = online_users;
     while (next != NULL) {
-        if (next->user.id == id)
+        if (strcmp(next->user->id, id) == 0)
             return next;
         next = next->next;
     }
@@ -60,10 +59,11 @@ User_List* find_active_user_fd(int sock_fd) {
 }
 
 void add_user(User* user, int fd) {
+    
     User_List* curr = online_users;
 
     User_List* new_user = (User_List*) malloc(sizeof (User_List));
-    new_user->user = *user;
+    new_user->user = user;
     new_user->next = NULL;
     strcpy(new_user->session_id, "");
     new_user->fd = fd;
@@ -78,11 +78,11 @@ void add_user(User* user, int fd) {
     curr->next = new_user;
 }
 
-bool delete_user(int id) {
+bool delete_user(char *id) {
     User_List* prev = NULL;
     User_List* curr = online_users;
     while (curr != NULL) {
-        if (curr->user.id == id)
+        if (strcmp(curr->user->id, id) == 0)
             break;
         prev = curr;
         curr = curr->next;
@@ -109,7 +109,7 @@ void print_active_users() {
 
     User_List* curr = online_users;
     while (curr != NULL) {
-        PRINT("%d\t%d\t%s\n", curr->user.id, curr->fd, curr->session_id);
+        PRINT("%d\t%d\t%s\n", curr->user->id, curr->fd, curr->session_id);
         curr = curr->next;
     }
 }

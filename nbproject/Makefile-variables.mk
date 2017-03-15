@@ -30,6 +30,22 @@ CND_ARTIFACT_PATH_AutoTester=dist/AutoTester/GNU-Linux/textconferencinglab
 CND_PACKAGE_DIR_AutoTester=dist/AutoTester/GNU-Linux/package
 CND_PACKAGE_NAME_AutoTester=textconferencinglab.tar
 CND_PACKAGE_PATH_AutoTester=dist/AutoTester/GNU-Linux/package/textconferencinglab.tar
+# Server-Valgrind configuration
+CND_PLATFORM_Server-Valgrind=GNU-Linux
+CND_ARTIFACT_DIR_Server-Valgrind=dist/Server-Valgrind/GNU-Linux
+CND_ARTIFACT_NAME_Server-Valgrind=textconferencinglab
+CND_ARTIFACT_PATH_Server-Valgrind=dist/Server-Valgrind/GNU-Linux/textconferencinglab
+CND_PACKAGE_DIR_Server-Valgrind=dist/Server-Valgrind/GNU-Linux/package
+CND_PACKAGE_NAME_Server-Valgrind=textconferencinglab.tar
+CND_PACKAGE_PATH_Server-Valgrind=dist/Server-Valgrind/GNU-Linux/package/textconferencinglab.tar
+# Client_Valgrind configuration
+CND_PLATFORM_Client_Valgrind=GNU-Linux
+CND_ARTIFACT_DIR_Client_Valgrind=dist/Client_Valgrind/GNU-Linux
+CND_ARTIFACT_NAME_Client_Valgrind=textconferencinglab
+CND_ARTIFACT_PATH_Client_Valgrind=dist/Client_Valgrind/GNU-Linux/textconferencinglab
+CND_PACKAGE_DIR_Client_Valgrind=dist/Client_Valgrind/GNU-Linux/package
+CND_PACKAGE_NAME_Client_Valgrind=textconferencinglab.tar
+CND_PACKAGE_PATH_Client_Valgrind=dist/Client_Valgrind/GNU-Linux/package/textconferencinglab.tar
 #
 # include compiler specific variables
 #

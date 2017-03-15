@@ -1,5 +1,6 @@
 PORT=5007
 FILENAME=Twice.jpg
+VALGRIND=1
 
 # BUILD FILES
 make

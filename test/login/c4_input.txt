@@ -1,6 +1,6 @@
-/login 4 User4 127.0.0.1 5007
+/login User4 User4 127.0.0.1 5007
 /logout
-/login 3 User3 127.0.0.1 5007
+/login User3 User3 127.0.0.1 5007
 /logout
 /logout
 /quit
