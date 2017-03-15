@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>src/constants.h</itemPath>
+      <itemPath>src/message.h</itemPath>
+      <itemPath>src/packet_type.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="client" displayName="client" projectFiles="true">
+        <itemPath>src/client/client.c</itemPath>
+        <itemPath>src/client/client.h</itemPath>
+        <itemPath>src/client/client_command.c</itemPath>
+        <itemPath>src/client/status.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="server" displayName="server" projectFiles="true">
+        <itemPath>src/server/message_handle.c</itemPath>
+        <itemPath>src/server/server.c</itemPath>
+        <itemPath>src/server/server.h</itemPath>
+        <itemPath>src/server/session.h</itemPath>
+        <itemPath>src/server/session_list.c</itemPath>
+        <itemPath>src/server/session_list.h</itemPath>
+        <itemPath>src/server/user.h</itemPath>
+        <itemPath>src/server/user_list.c</itemPath>
+        <itemPath>src/server/user_list.h</itemPath>
+      </logicalFolder>
+      <itemPath>src/message.c</itemPath>
+      <itemPath>src/print_debug.c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+      <itemPath>autotester.sh</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>src</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Client" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <commandLine>-cstd=c11</commandLine>
+        </cTool>
+      </compileType>
+      <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client_command.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/status.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/constants.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/message.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/message.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/session_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Server" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <commandLine>-cstd=c11</commandLine>
+        </cTool>
+      </compileType>
+      <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client_command.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/status.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/constants.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/message.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/message.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/session_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="AutoTester" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+      </compileType>
+      <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client_command.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/status.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/constants.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/message.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/message.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/session_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Server-Valgrind" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+      </compileType>
+      <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client_command.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/status.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/constants.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/message.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/message.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/session_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Client_Valgrind" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+      </compileType>
+      <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client_command.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/status.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/constants.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/message.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/message.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/session_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
