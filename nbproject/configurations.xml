@@ -16,6 +16,8 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="client" displayName="client" projectFiles="true">
+        <itemPath>src/client/audio_input.c</itemPath>
+        <itemPath>src/client/audio_input.h</itemPath>
         <itemPath>src/client/client.c</itemPath>
         <itemPath>src/client/client.h</itemPath>
         <itemPath>src/client/client_command.c</itemPath>
@@ -64,6 +66,10 @@
           <commandLine>-cstd=c11</commandLine>
         </cTool>
       </compileType>
+      <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
@@ -112,6 +118,10 @@
           <commandLine>-cstd=c11</commandLine>
         </cTool>
       </compileType>
+      <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
@@ -157,6 +167,10 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
@@ -202,6 +216,10 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
@@ -247,6 +265,10 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
