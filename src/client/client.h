@@ -5,6 +5,7 @@
 #include "../message.h"
 #include "../packet_type.h"
 #include "status.h"
+#include "audio_input.h"
 
 extern Status status;
 
@@ -24,18 +25,9 @@ bool quit();
 
 bool send_message(char* message);
 
-static unsigned long
-sdbm(str)
-unsigned char *str;
-{
-    unsigned long hash = 0;
-    int c;
+bool start_call();
 
-    while (c = *str++)
-        hash = c + (hash << 6) + (hash << 16) - hash;
-
-    return hash;
-}
+bool end_call();
 
 #endif /* CLIENT_H */
 

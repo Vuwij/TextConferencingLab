@@ -4,6 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>src/audio_packet.h</itemPath>
       <itemPath>src/constants.h</itemPath>
       <itemPath>src/message.h</itemPath>
       <itemPath>src/packet_type.h</itemPath>
@@ -24,6 +25,8 @@
         <itemPath>src/client/status.h</itemPath>
       </logicalFolder>
       <logicalFolder name="server" displayName="server" projectFiles="true">
+        <itemPath>src/server/audio_port.c</itemPath>
+        <itemPath>src/server/audio_port.h</itemPath>
         <itemPath>src/server/message_handle.c</itemPath>
         <itemPath>src/server/server.c</itemPath>
         <itemPath>src/server/server.h</itemPath>
@@ -62,10 +65,14 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
-        <cTool>
-          <commandLine>-cstd=c11</commandLine>
-        </cTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerOptionItem>`pkg-config --libs alsa`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
       </compileType>
+      <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
@@ -87,6 +94,10 @@
       <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -118,6 +129,8 @@
           <commandLine>-cstd=c11</commandLine>
         </cTool>
       </compileType>
+      <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
@@ -139,6 +152,10 @@
       <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -167,6 +184,8 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
@@ -188,6 +207,10 @@
       <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -216,6 +239,8 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
@@ -237,6 +262,10 @@
       <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -265,6 +294,8 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
@@ -286,6 +317,10 @@
       <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
       </item>

@@ -2,8 +2,12 @@ MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
 
+CC=gcc
 SERVER=build/Server
 CLIENT=build/Client
+
+CFLAGS = -std=gnu11
+LDFLAGS += -lasound -lm
 
 # default
 default: .create_dir .client .server
@@ -12,10 +16,10 @@ default: .create_dir .client .server
 	mkdir -p $(CLIENT) && mkdir -p $(SERVER)
 
 .client:
-	gcc -std=gnu11 -o $(CLIENT)/client src/*.c src/client/*.c
+	gcc $(CFLAGS) -o $(CLIENT)/client src/*.c src/client/*.c $(LDFLAGS)
 
 .server:
-	gcc -std=gnu11 -o $(SERVER)/server src/*.c src/server/*.c
+	gcc $(CFLAGS) -o $(SERVER)/server -lasound src/*.c src/server/*.c $(LDFLAGS)
 
 
 # include project implementation makefile

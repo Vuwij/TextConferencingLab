@@ -192,6 +192,7 @@ bool list() {
         PRINT("Invalid packet %d\n", (int) r->type);
     
     free(r);
+    return false;
 }
 
 bool quit() {
@@ -210,5 +211,52 @@ bool send_message(char* message) {
     strncpy(m.data, message, MAX_DATA);
     deliver_message(&m, status.sockfd);
 
+    return true;
+}
+
+bool start_call() {
+    PRINT("Starting Call\n");
+    
+    Message m;
+    m.type = ST_CONF;
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
+    deliver_message(&m, status.sockfd);
+    
+    Message* r;
+    r = receive_message(status.sockfd);
+    
+    if (r->type == ST_CONF_NCK) {
+        PRINT(r->data);
+        free(r);
+        return false;
+    }
+    
+    // Start UDP socket
+    
+    free(r);
+    return true;
+}
+
+bool end_call() {
+    PRINT("Ending Call\n");
+    
+    Message m;
+    m.type = END_CONF;
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
+    deliver_message(&m, status.sockfd);
+    
+    Message* r;
+    r = receive_message(status.sockfd);
+    
+    // Close the UDP socket
+    
+    if (r->type == END_CONF_NCK) {
+        PRINT(r->data);
+        free(r);
+        return false;
+    }
+    
+    // Close UDP socket
+    free(r);
     return true;
 }

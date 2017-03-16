@@ -40,6 +40,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/client/client_command.o \
 	${OBJECTDIR}/src/message.o \
 	${OBJECTDIR}/src/print_debug.o \
+	${OBJECTDIR}/src/server/audio_port.o \
 	${OBJECTDIR}/src/server/message_handle.o \
 	${OBJECTDIR}/src/server/server.o \
 	${OBJECTDIR}/src/server/session_list.o \
@@ -94,6 +95,11 @@ ${OBJECTDIR}/src/print_debug.o: src/print_debug.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/print_debug.o src/print_debug.c
+
+${OBJECTDIR}/src/server/audio_port.o: src/server/audio_port.c 
+	${MKDIR} -p ${OBJECTDIR}/src/server
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/server/audio_port.o src/server/audio_port.c
 
 ${OBJECTDIR}/src/server/message_handle.o: src/server/message_handle.c 
 	${MKDIR} -p ${OBJECTDIR}/src/server

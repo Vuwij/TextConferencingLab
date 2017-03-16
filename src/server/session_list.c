@@ -11,9 +11,10 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <assert.h>
+
 #include "session_list.h"
 #include "user_list.h"
-#include <assert.h>
 
 Session_List* session_list;
 

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
+
 #include "../message.h"
 #include "../packet_type.h"
 #include "user_list.h"
@@ -73,10 +74,13 @@ void exitserver(Message* msg, int fd) {
 
     // Delete User from UserList
     bool deleteSuccess = delete_user(user->user->id);
-    if (!deleteSuccess)
+    if (!deleteSuccess) {
         fprintf(stderr, "ERROR: unable to delete user with id %d", user->user->id);
-    else
+    }
+    else {
+        control_fd[fd] = false;
         close(fd);
+    }
 }
 
 void join(Message* msg, int fd) {
@@ -238,5 +242,3 @@ void handle_client_message(Message* msg, int fd) {
             fprintf(stderr, "Incorrect packet type sent by client. Received %d", (int) msg->type);
     }
 }
-
-

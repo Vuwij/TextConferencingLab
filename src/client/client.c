@@ -40,7 +40,10 @@ int main(int argc, char *argv[]) {
     if (argc > 2) usage(argv[0]);
     if (argc == 2) print_src = (PRINT_SRC) atoi(argv[1]);
     PRINT("Started\n");
-
+    
+    // Starts the audio recording
+    //setup_playback();
+    
     // Status of the client
     bool logged_in;
     bool in_session;
@@ -57,9 +60,6 @@ int main(int argc, char *argv[]) {
     char command[MAXBUFSIZE];
 
     // File descriptor for standard input
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 50000;
     fd_set master;
     fd_set read_fds;
     FD_ZERO(&read_fds);
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
                 }
                 send_message(input);
             } else {
-                if (sscanf(input, "%s %s %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {
+                if (sscanf(input, "%s %s %s %s %d", command, client_id, password, server_ip, &server_port) == 5) {
                     if (strncmp(command, "/login", strlen("/login")) != 0) {
                         input_usage();
                         continue;

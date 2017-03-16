@@ -2,6 +2,7 @@
 #define	STATUS_H
 
 #include <netdb.h>
+
 #include "../constants.h"
 
 typedef struct {
