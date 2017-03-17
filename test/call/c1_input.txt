@@ -1,0 +1,4 @@
+/login User1 User1 127.0.0.1 5007
+/createsession 1
+/joinsession 1
+

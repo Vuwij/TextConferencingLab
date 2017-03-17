@@ -31,6 +31,8 @@ void input_usage() {
     PRINT("  /joinsession <session ID>\n");
     PRINT("  /leavesession\n");
     PRINT("  /createsession <session ID>\n");
+    PRINT("  /startcall\n");
+    PRINT("  /joincall\n");
     PRINT("  /list\n");
     PRINT("  /quit\n");
     PRINT("  <text>\n");
@@ -42,11 +44,15 @@ int main(int argc, char *argv[]) {
     PRINT("Started\n");
     
     // Starts the audio recording
-    //setup_playback();
+    setup_playback();
+    while(1) {
+        send_buffer_to_output();
+    }
     
     // Status of the client
-    bool logged_in;
-    bool in_session;
+    bool logged_in = false;
+    bool in_session = false;
+    bool call_started = false;
 
     // User Input
     char server_ip[MAXBUFSIZE];
@@ -78,7 +84,7 @@ int main(int argc, char *argv[]) {
             PRINT("Server Abnormally Closed Connection\n");
             exit(0);
         }
-
+        
         // If connection to the server is established
         if (fdmax != STDIN) {
             // Check if there is something to be printed from the network socket
@@ -86,8 +92,12 @@ int main(int argc, char *argv[]) {
                 Message* msg = receive_message(status.sockfd);
                 PRINT("%s: %s\n", msg->source, msg->data);
             }
+            // Check if there is a voice packet to be played
+            if (FD_ISSET(status.voicefd, &read_fds)) {
+                
+            }
         }
-
+        
         // Check if there was an user input
         if (FD_ISSET(STDIN, &read_fds)) {
             if (fgets(input, 100, stdin) == NULL) continue;
@@ -184,6 +194,34 @@ int main(int argc, char *argv[]) {
                             continue;
                         }
                         list();
+                    } else if (strncmp(command, "/startcall", strlen("/startcall")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (!in_session) {
+                            PRINT("Not entered into any session\n");
+                            continue;
+                        }
+                        if (call_started) {
+                            PRINT("Already in call\n");
+                            continue;
+                        }
+                        start_call();
+                    } else if (strncmp(command, "/joincall", strlen("/joincall")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (!in_session) {
+                            PRINT("Not entered into any session\n");
+                            continue;
+                        }
+                        if (!call_started) {
+                            PRINT("No active calls in session\n");
+                            continue;
+                        }
+                        join_call();
                     } else if (strncmp(command, "/quit", strlen("/quit")) == 0) {
                         if (in_session) {
                             bool success = leave_session();

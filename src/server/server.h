@@ -18,14 +18,12 @@
 
 #define MAX_FD_NUM 1024
 
-#include "../constants.h"
-#include "../message.h"
-#include "../packet_type.h"
 #include "user_list.h"
 #include "session_list.h"
 #include "user.h"
-
-typedef struct addrinfo AddrInfo;
+#include "../constants.h"
+#include "../message.h"
+#include "../packet_type.h"
 
 // Master file descriptor list
 extern fd_set master;

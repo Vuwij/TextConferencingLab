@@ -1,6 +1,7 @@
 PORT=5007
 FILENAME=Twice.jpg
 VALGRIND=1
+TEST="test/call"
 
 # BUILD FILES
 make
@@ -8,6 +9,14 @@ make
 i=0
 for test_dir in test/*;
 do
+    if [ ! -z "$TEST" ] 
+    then 
+        if [ "$test_dir" != "$TEST" ]
+        then
+            continue
+        fi
+    fi
+
     i=$(( $i + 1 ))
     
     # Close the programs

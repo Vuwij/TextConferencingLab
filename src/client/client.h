@@ -5,7 +5,7 @@
 #include "../message.h"
 #include "../packet_type.h"
 #include "status.h"
-#include "audio_input.h"
+#include "audio_output.h"
 
 extern Status status;
 
@@ -27,7 +27,7 @@ bool send_message(char* message);
 
 bool start_call();
 
-bool end_call();
+bool join_call();
 
 #endif /* CLIENT_H */
 

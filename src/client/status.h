@@ -12,10 +12,14 @@ typedef struct {
     int sockfd;
     struct addrinfo *p;
     
+    int voicefd;
+    struct addrinfo *udp;
+    
     char client_id[MAXBUFSIZE];
     char password[MAXBUFSIZE];
     
     int current_session_id;
+    
 } Status;
 
 Status status;

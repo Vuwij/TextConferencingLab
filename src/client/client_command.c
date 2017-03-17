@@ -231,14 +231,14 @@ bool start_call() {
         return false;
     }
     
-    // Start UDP socket
-    
+    PRINT("Call Started, Joining call\n");
     free(r);
-    return true;
+    
+    return join_call();
 }
 
-bool end_call() {
-    PRINT("Ending Call\n");
+bool join_call() {
+    PRINT("Joining call\n");
     
     Message m;
     m.type = END_CONF;
@@ -248,15 +248,12 @@ bool end_call() {
     Message* r;
     r = receive_message(status.sockfd);
     
-    // Close the UDP socket
-    
     if (r->type == END_CONF_NCK) {
         PRINT(r->data);
         free(r);
         return false;
     }
     
-    // Close UDP socket
     free(r);
     return true;
 }

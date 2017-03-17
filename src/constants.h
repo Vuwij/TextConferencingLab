@@ -39,6 +39,8 @@
 #define H_COMM_LIST             2083414413
 #define H_COMM_QUIT             1790193820
 
+typedef struct addrinfo AddrInfo;
+
 typedef enum {
     SERVER = 0,
     CLIENT1 = 1,

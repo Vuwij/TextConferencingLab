@@ -13,7 +13,6 @@
 
 #include "audio_port.h"
 #include "../constants.h"
-#include "server.h"
 
 struct addrinfo *audio_port;
 int port_d;

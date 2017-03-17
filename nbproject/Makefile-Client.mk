@@ -35,7 +35,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/src/client/audio_input.o \
+	${OBJECTDIR}/src/audio_packet.o \
+	${OBJECTDIR}/src/client/audio_output.o \
 	${OBJECTDIR}/src/client/client.o \
 	${OBJECTDIR}/src/client/client_command.o \
 	${OBJECTDIR}/src/message.o \
@@ -71,10 +72,15 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/src/client/audio_input.o: src/client/audio_input.c 
+${OBJECTDIR}/src/audio_packet.o: src/audio_packet.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.c) -g `pkg-config --cflags alsa`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/audio_packet.o src/audio_packet.c
+
+${OBJECTDIR}/src/client/audio_output.o: src/client/audio_output.c 
 	${MKDIR} -p ${OBJECTDIR}/src/client
 	${RM} "$@.d"
-	$(COMPILE.c) -g `pkg-config --cflags alsa`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/audio_input.o src/client/audio_input.c
+	$(COMPILE.c) -g `pkg-config --cflags alsa`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/audio_output.o src/client/audio_output.c
 
 ${OBJECTDIR}/src/client/client.o: src/client/client.c 
 	${MKDIR} -p ${OBJECTDIR}/src/client
