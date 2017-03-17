@@ -105,11 +105,11 @@ bool delete_user(char *id) {
 
 void print_active_users() {
     PRINT("Active Users:\n");
-    PRINT("User\tFD\tSession\n");
+    PRINT("User Session\n");
 
     User_List* curr = online_users;
     while (curr != NULL) {
-        PRINT("%d\t%d\t%s\n", curr->user->id, curr->fd, curr->session_id);
+        PRINT("%05s %s\n", curr->user->id, curr->session_id);
         curr = curr->next;
     }
 }

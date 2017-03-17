@@ -28,17 +28,17 @@ void login(Message* msg, int fd) {
         case ERR_LOGGED_IN:
             PRINT("User Already Logged In\n");
             m.type = LO_NAK;
-            strncpy(m.data, "User Already Logged In\n", strlen("User Already Logged In\n"));
+            strcpy(m.data, "User Already Logged In\n");
             break;
         case ERR_ID_NO_MATCH:
             PRINT("User ID not found\n");
             m.type = LO_NAK;
-            strncpy(m.data, "User ID not found\n", strlen("User ID not found\n"));
+            strcpy(m.data, "User ID not found\n");
             break;
         case ERR_PASS_NO_MATCH:
             PRINT("User Password does not match\n");
             m.type = LO_NAK;
-            strncpy(m.data, "User Password does not match\n", strlen("User Password does not match\n"));
+            strcpy(m.data, "User Password does not match\n");
             break;
         default:
             PRINT("Server Error Occurred\n");

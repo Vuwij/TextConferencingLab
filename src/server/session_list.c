@@ -150,21 +150,9 @@ bool is_session_empty(Session * session) {
 }
 
 void print_active_sessions() {
-    PRINT("Active Sessions:\n");
-
-    Session_List* s = session_list;
-
-    while (s != NULL) {
-        PRINT("Session %s\n", s->session.id);
-
-        for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
-            if (s->session.users[i] == NULL)
-                continue;
-
-            PRINT("  User %s\n", s->session.users[i]->id);
-        }
-        s = s->next;
-    }
+    char sess_str[MAXDATASIZE];
+    get_session_string(sess_str);
+    PRINT(sess_str);
 }
 
 void get_session_string(char *sess_str) {
@@ -183,13 +171,14 @@ void get_session_string(char *sess_str) {
         for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
             if (s->session.users[i] == NULL)
                 continue;
-            snprintf(user_id_str, MAXDATASIZE, "%s ", s->session.users[i]->id);
+            snprintf(user_id_str, MAXDATASIZE, "%d: %s ", i, s->session.users[i]->id);
             strncat(sess_str, user_id_str, MAXDATASIZE);
             count++;
         }
-        if (count == 0)
+        if (count == 0) {
             snprintf(user_id_str, MAXDATASIZE, "None");
-        strncat(sess_str, user_id_str, MAXDATASIZE);
+            strncat(sess_str, user_id_str, MAXDATASIZE);
+        }
         strncat(sess_str, "\n", MAXDATASIZE);
         s = s->next;
     }
