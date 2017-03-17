@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+
 #include "user_list.h"
 #include "../constants.h"
 

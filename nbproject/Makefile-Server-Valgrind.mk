@@ -35,10 +35,12 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/src/client/audio_input.o \
 	${OBJECTDIR}/src/client/client.o \
 	${OBJECTDIR}/src/client/client_command.o \
 	${OBJECTDIR}/src/message.o \
 	${OBJECTDIR}/src/print_debug.o \
+	${OBJECTDIR}/src/server/audio_port.o \
 	${OBJECTDIR}/src/server/message_handle.o \
 	${OBJECTDIR}/src/server/server.o \
 	${OBJECTDIR}/src/server/session_list.o \
@@ -69,6 +71,11 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab ${OBJECTFILES} ${LDLIBSOPTIONS}
 
+${OBJECTDIR}/src/client/audio_input.o: src/client/audio_input.c 
+	${MKDIR} -p ${OBJECTDIR}/src/client
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/audio_input.o src/client/audio_input.c
+
 ${OBJECTDIR}/src/client/client.o: src/client/client.c 
 	${MKDIR} -p ${OBJECTDIR}/src/client
 	${RM} "$@.d"
@@ -88,6 +95,11 @@ ${OBJECTDIR}/src/print_debug.o: src/print_debug.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/print_debug.o src/print_debug.c
+
+${OBJECTDIR}/src/server/audio_port.o: src/server/audio_port.c 
+	${MKDIR} -p ${OBJECTDIR}/src/server
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/server/audio_port.o src/server/audio_port.c
 
 ${OBJECTDIR}/src/server/message_handle.o: src/server/message_handle.c 
 	${MKDIR} -p ${OBJECTDIR}/src/server

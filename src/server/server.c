@@ -1,22 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <assert.h>
+#include <sys/select.h>
 
 #include "server.h"
+#include "audio_port.h"
 
-int port;
-fd_set master; // master file descriptor list
+int port_c;
+int sockfd_c;
+fd_set master;
+bool control_fd[MAX_FD_NUM] = { 0 };    // Identifier for control fd
 
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
@@ -59,19 +49,19 @@ void open_server_socket(int port) {
         return;
     }
 
-    for (p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                p->ai_protocol)) == -1) {
+    for (audio_port = servinfo; audio_port != NULL; audio_port = audio_port->ai_next) {
+        if ((sockfd_c = socket(audio_port->ai_family, audio_port->ai_socktype,
+                audio_port->ai_protocol)) == -1) {
             perror("server: socket");
             continue;
         }
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,
+        if (setsockopt(sockfd_c, SOL_SOCKET, SO_REUSEADDR, &yes,
                 sizeof (int)) == -1) {
             perror("setsockopt");
             exit(1);
         }
-        if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-            close(sockfd);
+        if (bind(sockfd_c, audio_port->ai_addr, audio_port->ai_addrlen) == -1) {
+            close(sockfd_c);
             perror("server: bind");
             continue;
         }
@@ -80,11 +70,11 @@ void open_server_socket(int port) {
 
     freeaddrinfo(servinfo);
 
-    if (p == NULL) {
+    if (audio_port == NULL) {
         fprintf(stderr, "server: failed to bind\n");
         exit(1);
     }
-    if (listen(sockfd, BACKLOG) == -1) {
+    if (listen(sockfd_c, BACKLOG) == -1) {
         perror("listen");
         exit(1);
     }
@@ -106,44 +96,43 @@ struct timeval tv = {
 };
 
 void listen_for_messages() {
+    PRINT("Waiting for Clients\n");
+    
     //Initialize File Descriptor
-    fd_set read_fds; // temp file descriptor list for select()
+    fd_set read_fds;
+    
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
-    FD_SET(sockfd, &master); // add the listener to the master set
-
-    int fdmax = sockfd; // keep track of the biggest file descriptor
-
+    
+    FD_SET(sockfd_c, &master); // add the Control listener to the master set
+    
+    int fdmax = sockfd_c > sockfd_d ? sockfd_c : sockfd_d;
+    
     struct sockaddr_storage remoteaddr; // client address
     char remoteIP[INET6_ADDRSTRLEN];
-
     int nbytes;
-
-    // main loop
-    PRINT("Waiting for Clients\n");
 
     while (1) {
         // Copy the master to the temporary FD
         read_fds = master;
         if (select(fdmax + 1, &read_fds, NULL, NULL, &tv) == -1) {
-
             perror("select - server");
             exit(4);
         }
 
-        // run through the existing connections looking for data to read
         for (int i = 0; i <= fdmax; i++) {
-            if (FD_ISSET(i, &read_fds)) { // we got one!!
+            if (FD_ISSET(i, &read_fds)) {
 
-                // New Connections
-                if (i == sockfd) {
+                // Received a data from the control port
+                if (i == sockfd_c) {
                     socklen_t addrlen = sizeof remoteaddr;
-                    int newfd = accept(sockfd,
+                    int newfd = accept(sockfd_c,
                             (struct sockaddr *) &remoteaddr, &addrlen);
                     if (newfd == -1) {
                         perror("accept");
                     } else {
                         FD_SET(newfd, &master); // add to master set
+                        control_fd[newfd] = true;
                         if (newfd > fdmax) fdmax = newfd;
 
                         PRINT("New Con. %s on socket %d\n",
@@ -154,45 +143,55 @@ void listen_for_messages() {
                                 newfd
                                 );
                     }
-                } else {
+                }
+                else if (i == sockfd_d) {
+                    // Add UDP socket into the fd list
+                }
+                // Receved control port info
+                else if (control_fd [i] == true) {
                     Message* msg = (Message*) malloc(sizeof (Message));
                     if ((nbytes = recv(i, msg, sizeof (Message), 0)) <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) PRINT("selectserver: socket %d hung up\n", i);
                         else perror("recv");
+                        
                         exitserver(msg, i);
-
                     } else {
                         if (DEBUG_MSG) print_message(msg);
                         handle_client_message(msg, i);
                     }
                     free(msg);
-                } // END handle data from client
-            } // END got new incoming connection
-        } // END looping through file descriptors
-    } // END while(1) 
+                }
+                // Recieved UDP port info
+                else {
+                    
+                }
+            }
+        }
+    }
 }
-
-int sockfd;
-AddrInfo *p;
 
 int main(int argc, char *argv[]) {
     if (argc != 2) usage(argv[0]);
-    PRINT("Started\n");
-
+    
     // Obtain the Port Number
-    port = atoi(argv[1]);
-    if (!(MIN_PORTNUM <= port && port <= MAX_PORTNUM)) {
-        fprintf(stderr, "port = %d should be within range [%d:%d]\n", port, MIN_PORTNUM, MAX_PORTNUM);
+    port_c = atoi(argv[1]);
+    if (!(MIN_PORTNUM <= port_c && port_c <= MAX_PORTNUM)) {
+        fprintf(stderr, "port = %d should be within range [%d:%d]\n", port_c, MIN_PORTNUM, MAX_PORTNUM);
         usage(argv[0]);
     }
 
     // Open a server side socket
-    open_server_socket(port);
-
+    PRINT("Opened Ctl Port: %d\n", port_c);
+    open_server_socket(port_c);
+    
+    // Open the audio listener socket
+    PRINT("Opened Data Port: %d\n", port_c + 1);
+    open_audio_socket(port_c + 1);
+    
     // The main iteration loop
     listen_for_messages();
 
-    close(sockfd);
+    close(sockfd_c);
     return 0;
 }
