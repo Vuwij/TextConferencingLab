@@ -1,4 +1,3 @@
 /login User4 User4 127.0.0.1 5007
 /joinsession 1
-Hello World
 /startcall

@@ -2,6 +2,7 @@
 #define USER_LIST
 
 #include <stdbool.h>
+#include <sys/socket.h>
 
 #include "user.h"
 #include "../constants.h"
@@ -16,7 +17,9 @@ typedef enum login_error {
 typedef struct user_list {
     User* user;
     char session_id[MAXDATASIZE];
-    int fd;
+    int fd;                             // Control Port FD
+    struct sockaddr_storage* udp_addr;   // Data Port Address
+    
     struct user_list *next;
 } User_List;
 

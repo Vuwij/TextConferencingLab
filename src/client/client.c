@@ -15,7 +15,8 @@
 #include <stdbool.h>
 
 #include "client.h"
-#include "../constants.h" 
+#include "../constants.h"
+#include "audio_input.h"
 
 #define STDIN 0
 
@@ -38,17 +39,14 @@ void input_usage() {
     PRINT("  <text>\n");
 }
 
+fd_set master;
+int fdmax = STDIN;
+
 int main(int argc, char *argv[]) {
     if (argc > 2) usage(argv[0]);
     if (argc == 2) print_src = (PRINT_SRC) atoi(argv[1]);
     PRINT("Started\n");
-    
-    // Starts the audio recording
-    setup_playback();
-    while(1) {
-        send_buffer_to_output();
-    }
-    
+
     // Status of the client
     bool logged_in = false;
     bool in_session = false;
@@ -66,11 +64,12 @@ int main(int argc, char *argv[]) {
     char command[MAXBUFSIZE];
 
     // File descriptor for standard input
-    fd_set master;
     fd_set read_fds;
+    status.voicefd = -1;
     FD_ZERO(&read_fds);
+    FD_ZERO(&master);
     FD_SET(STDIN, &master);
-    int fdmax = STDIN;
+
     int ret = 0;
     while (1) {
         read_fds = master; // copy it
@@ -84,20 +83,31 @@ int main(int argc, char *argv[]) {
             PRINT("Server Abnormally Closed Connection\n");
             exit(0);
         }
-        
+
         // If connection to the server is established
         if (fdmax != STDIN) {
             // Check if there is something to be printed from the network socket
             if (FD_ISSET(status.sockfd, &read_fds)) {
                 Message* msg = receive_message(status.sockfd);
+
+                if (msg->type == ST_CONF_INIT)
+                    join_call();
+
                 PRINT("%s: %s\n", msg->source, msg->data);
+                free(msg);
             }
             // Check if there is a voice packet to be played
             if (FD_ISSET(status.voicefd, &read_fds)) {
-                
+                int numbytes;
+                if ((numbytes = recvfrom(status.voicefd, buf, 1024 * sizeof(short), 0,
+                        (struct sockaddr *) &status.udp->ai_addr, &status.udp->ai_addrlen)) == -1) {
+                    perror("c: recvfrom");
+                    exit(1);
+                }
+                send_buffer_to_output();
             }
         }
-        
+
         // Check if there was an user input
         if (FD_ISSET(STDIN, &read_fds)) {
             if (fgets(input, 100, stdin) == NULL) continue;
@@ -174,7 +184,6 @@ int main(int argc, char *argv[]) {
                             logged_in = false;
                             FD_CLR(status.sockfd, &master);
                             status.sockfd = -1;
-                            fdmax = STDIN;
                         }
                     } else if (strncmp(command, "/leavesession", strlen("/leavesession")) == 0) {
                         if (!logged_in) {

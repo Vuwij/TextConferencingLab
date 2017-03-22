@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/src/audio_packet.o \
+	${OBJECTDIR}/src/client/audio_input.o \
 	${OBJECTDIR}/src/client/audio_output.o \
 	${OBJECTDIR}/src/client/client.o \
 	${OBJECTDIR}/src/client/client_command.o \
@@ -76,6 +77,11 @@ ${OBJECTDIR}/src/audio_packet.o: src/audio_packet.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -g `pkg-config --cflags alsa`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/audio_packet.o src/audio_packet.c
+
+${OBJECTDIR}/src/client/audio_input.o: src/client/audio_input.c 
+	${MKDIR} -p ${OBJECTDIR}/src/client
+	${RM} "$@.d"
+	$(COMPILE.c) -g `pkg-config --cflags alsa`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/client/audio_input.o src/client/audio_input.c
 
 ${OBJECTDIR}/src/client/audio_output.o: src/client/audio_output.c 
 	${MKDIR} -p ${OBJECTDIR}/src/client

@@ -1,5 +1,5 @@
-#ifndef AUDIO_INPUT_H
-#define AUDIO_INPUT_H
+#ifndef AUDIO_OUTPUT_H
+#define AUDIO_OUTPUT_H
 
 #define AUDIO_OUTPUT_N "default"
 #define CHUNK_PER_BUFFER 2
@@ -18,5 +18,5 @@ void send_buffer_to_output();
 
 void end_playback();
 
-#endif /* AUDIO_INPUT_H */
+#endif /* AUDIO_OUTPUT_H */
 

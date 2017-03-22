@@ -212,6 +212,7 @@ void message(Message* msg, int fd) {
 }
 
 void handle_start_call(Message* msg, int fd) {
+    PRINT("Starting call requested\n");
     char *id = msg->source;
 
     // Find the user associated
@@ -237,6 +238,8 @@ void handle_start_call(Message* msg, int fd) {
 }
 
 void handle_end_call(Message* msg, int fd) {
+    PRINT("Ending call\n");
+    
     char *id = msg->source;
 
     // Find the user associated

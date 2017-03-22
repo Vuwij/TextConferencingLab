@@ -6,8 +6,11 @@
 #include "../packet_type.h"
 #include "status.h"
 #include "audio_output.h"
+#include "audio_input.h"
 
 extern Status status;
+extern fd_set master;
+extern int fdmax;
 
 bool login(char* client_id, char* password, char* server_ip, int server_port);
 

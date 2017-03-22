@@ -26,6 +26,8 @@ int playback_callback(snd_pcm_sframes_t nframes) {
 }
 
 void setup_playback() {
+    PRINT("Starting Playback\n");
+    
     for (int i = 0; i < BUFFER_LEN; i++)
         buf [i] = 5000; // sine wave value generation
 
@@ -140,7 +142,6 @@ void send_buffer_to_output() {
         }
     }
 
-    printf("%ld \n", frames_to_deliver);
     frames_to_deliver = frames_to_deliver > BUFFER_CHUNK ? BUFFER_CHUNK : frames_to_deliver;
 
     /* deliver the data */

@@ -200,6 +200,7 @@ void start_call(Session* session) {
     // Send clients TCP message telling them to open UDP ports to the data port
     Message m, *r;
     m.type = ST_CONF_INIT;
+    strcpy(m.data, "Starting Call\n");
     
     for(int i = 0; i < session->fd_max; i++) {
         if(FD_ISSET(i, &session->client_fds)) {

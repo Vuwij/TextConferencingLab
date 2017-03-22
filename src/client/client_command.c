@@ -12,6 +12,7 @@
 
 #include "client.h"
 #include "status.h"
+#include "audio_input.h"
 
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
@@ -82,7 +83,7 @@ bool login(char* client_id, char* password, char* server_ip, int server_port) {
 
     Message* r;
     r = receive_message(sockfd);
-    
+
     // Update Status with the client and server socket and port
     status.sockfd = sockfd;
     status.p = p;
@@ -93,7 +94,7 @@ bool login(char* client_id, char* password, char* server_ip, int server_port) {
         PRINT("Login Failed: %s\n", r->data);
         status.sockfd = -1;
     }
-    
+
     if (r->type == LO_ACK) {
         PRINT("Login Succeeded\n");
         strncpy(status.client_id, client_id, MAXBUFSIZE);
@@ -185,12 +186,12 @@ bool list() {
 
     Message* r;
     r = receive_message(status.sockfd);
-    
+
     if (r->type == QU_ACK)
         PRINT(r->data);
     else
         PRINT("Invalid packet %d\n", (int) r->type);
-    
+
     free(r);
     return false;
 }
@@ -216,43 +217,84 @@ bool send_message(char* message) {
 
 bool start_call() {
     PRINT("Starting Call\n");
-    
+
     Message m;
     m.type = ST_CONF;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
     deliver_message(&m, status.sockfd);
-    
+
     Message* r;
     r = receive_message(status.sockfd);
-    
+
     if (r->type == ST_CONF_NCK) {
         PRINT(r->data);
         free(r);
         return false;
     }
-    
+
     PRINT("Call Started, Joining call\n");
     free(r);
-    
+
     return join_call();
 }
 
 bool join_call() {
     PRINT("Joining call\n");
+    setup_capture();
+    setup_playback();
     
+    // Open the UDP socket to the server
+    int sockfd;
+    struct addrinfo hints, *servinfo, *p;
+    int rv;
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
+    
+    char* address = status.connected_server_ip;
+    char port[MAXDATASIZE];
+    sprintf(port, "%d", status.connected_server_port + 1);
+    
+    if ((rv = getaddrinfo(address, port, &hints, &servinfo)) != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        return 1;
+    }
+
+    // loop through all the results and make a socket
+    for (p = servinfo; p != NULL; p = p->ai_next) {
+        if ((sockfd = socket(p->ai_family, p->ai_socktype,
+                p->ai_protocol)) == -1) {
+            perror("client: socket");
+            continue;
+        }
+        break;
+    }
+
+    if (p == NULL) {
+        fprintf(stderr, "client: failed to create socket\n");
+        return 2;
+    }
+    
+    // Add this information to status
+    status.udp = p;
+    status.voicefd = sockfd;
+    
+    // Send a reply to the server
     Message m;
-    m.type = END_CONF;
+    m.type = ST_CONF_INIT_ACK;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
     deliver_message(&m, status.sockfd);
-    
+
     Message* r;
     r = receive_message(status.sockfd);
     
-    if (r->type == END_CONF_NCK) {
-        PRINT(r->data);
-        free(r);
-        return false;
-    }
+    // Start receiving everything
+    FD_SET(status.voicefd, &master);
+    fdmax = fdmax > status.voicefd ? fdmax : status.voicefd;
+    
+    // Start the capture and send thread
+    open_capture();
     
     free(r);
     return true;

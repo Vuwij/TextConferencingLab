@@ -7,7 +7,7 @@ SERVER=build/Server
 CLIENT=build/Client
 
 CFLAGS = -std=gnu11
-LDFLAGS += -lasound -lm
+LDFLAGS += -lasound -lm -lpthread
 
 # default
 default: .create_dir .client .server
