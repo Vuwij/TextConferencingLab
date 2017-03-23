@@ -7,29 +7,31 @@
 
 #include "audio_output.h"
 #include "../constants.h"
+#include "../audio_packet.h"
 
-short buf[BUFFER_LEN];
+AudioPacket outpacket;
 snd_pcm_t *playback_handle;
 
 int playback_callback(snd_pcm_sframes_t nframes) {
     int err;
 
-    printf("playback callback called with %ld frames\n", nframes);
+    PRINT("playback callback called with %ld frames\n", nframes);
 
     /* ... fill buf with data ... */
-
-    if ((err = snd_pcm_writei(playback_handle, buf, nframes)) < 0) {
+    for(int i = 0; i < nframes; i++) {
+        PRINT("%hd ", outpacket.data[i]);
+    }
+    PRINT("\n");
+    
+    if ((err = snd_pcm_writei(playback_handle, &outpacket.data, nframes)) < 0) {
         fprintf(stderr, "write failed (%s)\n", snd_strerror(err));
     }
-
+    
     return err;
 }
 
 void setup_playback() {
-    PRINT("Starting Playback\n");
-    
-    for (int i = 0; i < BUFFER_LEN; i++)
-        buf [i] = 5000; // sine wave value generation
+    PRINT("Setup Playback\n");
 
     snd_pcm_hw_params_t *hw_params;
     snd_pcm_sw_params_t *sw_params;
@@ -142,7 +144,7 @@ void send_buffer_to_output() {
         }
     }
 
-    frames_to_deliver = frames_to_deliver > BUFFER_CHUNK ? BUFFER_CHUNK : frames_to_deliver;
+    frames_to_deliver = frames_to_deliver > BUFFER_CHUNK/2 ? BUFFER_CHUNK/2 : frames_to_deliver;
 
     /* deliver the data */
     if (playback_callback(frames_to_deliver) != frames_to_deliver) {

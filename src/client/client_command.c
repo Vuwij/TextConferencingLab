@@ -235,14 +235,14 @@ bool start_call() {
     PRINT("Call Started, Joining call\n");
     free(r);
 
-    return join_call();
+    return true;
 }
 
 bool join_call() {
     PRINT("Joining call\n");
     setup_capture();
     setup_playback();
-    
+
     // Open the UDP socket to the server
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
@@ -251,11 +251,12 @@ bool join_call() {
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
-    
+
     char* address = status.connected_server_ip;
     char port[MAXDATASIZE];
+    PRINT("Open UDP Port to %d\n", status.connected_server_port + 1);
     sprintf(port, "%d", status.connected_server_port + 1);
-    
+
     if ((rv = getaddrinfo(address, port, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
@@ -275,11 +276,11 @@ bool join_call() {
         fprintf(stderr, "client: failed to create socket\n");
         return 2;
     }
-    
+
     // Add this information to status
     status.udp = p;
     status.voicefd = sockfd;
-    
+
     // Send a reply to the server
     Message m;
     m.type = ST_CONF_INIT_ACK;
@@ -288,14 +289,14 @@ bool join_call() {
 
     Message* r;
     r = receive_message(status.sockfd);
-    
+
     // Start receiving everything
     FD_SET(status.voicefd, &master);
     fdmax = fdmax > status.voicefd ? fdmax : status.voicefd;
     
     // Start the capture and send thread
     open_capture();
-    
+
     free(r);
     return true;
 }

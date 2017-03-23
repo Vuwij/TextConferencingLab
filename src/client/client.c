@@ -17,6 +17,7 @@
 #include "client.h"
 #include "../constants.h"
 #include "audio_input.h"
+#include "audio_output.h"
 
 #define STDIN 0
 
@@ -90,8 +91,10 @@ int main(int argc, char *argv[]) {
             if (FD_ISSET(status.sockfd, &read_fds)) {
                 Message* msg = receive_message(status.sockfd);
 
-                if (msg->type == ST_CONF_INIT)
+                if (msg->type == ST_CONF_INIT) {
                     join_call();
+                    continue;
+                }
 
                 PRINT("%s: %s\n", msg->source, msg->data);
                 free(msg);
@@ -99,11 +102,13 @@ int main(int argc, char *argv[]) {
             // Check if there is a voice packet to be played
             if (FD_ISSET(status.voicefd, &read_fds)) {
                 int numbytes;
-                if ((numbytes = recvfrom(status.voicefd, buf, 1024 * sizeof(short), 0,
-                        (struct sockaddr *) &status.udp->ai_addr, &status.udp->ai_addrlen)) == -1) {
+                pthread_mutex_lock(&udp_port_lock);
+                if ((numbytes = recvfrom(status.voicefd, &outpacket, sizeof(AudioPacket), 0,
+                        (struct sockaddr *) status.udp->ai_addr, &status.udp->ai_addrlen)) == -1) {
                     perror("c: recvfrom");
                     exit(1);
                 }
+                pthread_mutex_unlock(&udp_port_lock);
                 send_buffer_to_output();
             }
         }

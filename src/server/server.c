@@ -106,7 +106,8 @@ void listen_for_messages() {
     FD_ZERO(&read_fds);
 
     FD_SET(sockfd_c, &master); // add the Control listener to the master set
-
+    FD_SET(sockfd_d, &master); // add the Data listener to the master set
+    
     int fdmax = sockfd_c > sockfd_d ? sockfd_c : sockfd_d;
 
     struct sockaddr_storage remoteaddr; // client address
@@ -185,15 +186,15 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "port = %d should be within range [%d:%d]\n", port_c, MIN_PORTNUM, MAX_PORTNUM);
         usage(argv[0]);
     }
-
-    // Open a server side socket
-    PRINT("Opened Ctl Port: %d\n", port_c);
-    open_server_socket(port_c);
-
+    
     // Open the audio listener socket
-    PRINT("Opened Data Port: %d\n", port_c + 1);
     open_audio_socket(port_c + 1);
-
+    PRINT("Opened Data Port: %d\n", port_c + 1);
+    
+    // Open a server side socket
+    open_server_socket(port_c);
+    PRINT("Opened Ctl Port: %d\n", port_c);
+    
     // The main iteration loop
     listen_for_messages();
 

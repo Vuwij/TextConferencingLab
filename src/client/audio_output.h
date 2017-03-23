@@ -10,7 +10,10 @@
 
 #define MIN_AVAILABLE_COUNT 4096
 
-extern short buf[BUFFER_LEN];
+#include "../audio_packet.h"
+
+typedef struct audio_packet AudioPacket;
+extern AudioPacket outpacket;
 
 void setup_playback();
 

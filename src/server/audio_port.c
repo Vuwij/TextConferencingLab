@@ -17,6 +17,7 @@
 #include "session.h"
 #include "voice_queue.h"
 #include "session_list.h"
+#include "server.h"
 
 struct addrinfo *audio_port;
 int port_d;
@@ -80,14 +81,17 @@ int hobi(int num) {
 
 void dequeue_audio_packets(Session* s) {
     AudioPacket t_packet;
+    bzero(t_packet.data, BUFFER_CHUNK);
+    strcpy(t_packet.source, "Server\n");
     
-    VoicePacketQueue* vpq = s->vpq;
+    VoicePacketQueue** vpq = s->vpq;
+    
     int scale = hobi(s->num_user);
     
     // TODO - mix properly using timeval, drop if time incorrect
     for (int i = 0; i < s->num_user; i++) {
         for(int j = 0; j < BUFFER_CHUNK; j++) {
-            t_packet.data[j] += (vpq[i].p->data[j] >> scale);
+            t_packet.data[j] = (vpq[i]->p->data[j]);
         }
     }
     
@@ -96,12 +100,19 @@ void dequeue_audio_packets(Session* s) {
     for (int i = 0; i < s->num_user; i++) {
         char* client_id = s->users[i]->id;
         User_List* user_l = find_active_user(client_id);
-        
-        if ((numbytes = sendto(sockfd_d, &t_packet, sizeof(t_packet), 0,
-                (struct sockaddr *) &user_l->udp_addr, sizeof(user_l->udp_addr))) == -1) {
-            perror("client: sendto");
+        socklen_t length = sizeof(*(user_l->udp_addr));
+        if ((numbytes = sendto(sockfd_d, &t_packet, sizeof(AudioPacket), 0,
+                (struct sockaddr *) (user_l->udp_addr), length)) == -1) {
+            perror("fail: sendto");
             exit(1);
         }
+    }
+    
+    // Dequeue the audio packets
+    for (int i = 0; i < s->num_user; i++) {
+        VoicePacketQueue* erase = s->vpq[i];
+        s->vpq[i] = s->vpq[i]->next;
+        free(erase);
     }
 }
 
@@ -113,23 +124,35 @@ void process_audio_packets(AudioPacket* packet, struct sockaddr_storage theiradd
     
     char* sess_id = user_l->session_id;
     Session* session = find_session(sess_id);
-
+    
     // Enqueue the audio packet
     for (int i = 0; i < session->num_user; i++) {
         // Find the correct session for the user
         if (strcmp(session->users[i]->id, packet->source) == 0) {
             // Add the packet to the session Voice Packet Queue
-            session->vpq[i].p = packet;
+            if(session->vpq[i] == NULL) {
+                session->vpq[i] = (VoicePacketQueue*) malloc(sizeof(VoicePacketQueue));
+                session->vpq[i]->next = NULL;
+            }
+            
+            // Go through the linked list until a empty list has been reached
+            VoicePacketQueue* head = session->vpq[i];
+            while (head->next != NULL) {
+                head = head->next;
+            }
+            head->next = (VoicePacketQueue*) malloc(sizeof(VoicePacketQueue));
+            head->next->p = packet;
+            head->next->next = NULL;
+            
         }
     }
-
-
+    
     // Check if the VPQ has all users's packets
-    bool dequeue_audio = false;
+    bool dequeue_audio = true;
     for (int i = 0; i < session->num_user; i++) {
-        if (session->vpq[i].p != NULL) dequeue_audio = true;
+        if (session->vpq[i] == NULL) dequeue_audio = false;
     }
-
+    
     // If all the users packets arrive, dequeue
     if (dequeue_audio) dequeue_audio_packets(session);
 }

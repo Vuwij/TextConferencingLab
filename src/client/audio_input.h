@@ -11,6 +11,7 @@
 #include "../audio_packet.h"
 
 extern pthread_t capture_t;
+extern pthread_mutex_t udp_port_lock;
 extern bool stop_capture;
 
 // The packet to play

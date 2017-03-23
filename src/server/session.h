@@ -18,7 +18,7 @@ typedef struct session {
     
     // Audio section
     bool call_started;
-    VoicePacketQueue vpq [MAX_USERS_PER_SESSION];
+    VoicePacketQueue* vpq [MAX_USERS_PER_SESSION];
 } Session;
 
 #endif /* SESSION_H */

@@ -35,13 +35,9 @@ do
 
     # Starts the clients
     build/Client/client "1" < "$test_dir/c1_input.txt" &
-    sleep .2
-    build/Client/client "2" < "$test_dir/c2_input.txt" &
-    sleep .2
-    build/Client/client "3" < "$test_dir/c3_input.txt" &
-    sleep .2
-    build/Client/client "4" < "$test_dir/c4_input.txt" &
-    sleep 1
+    sleep 5
+    #ssh wangj261@ug224 "cd Documents/ECE361/TextConferencingLab/ && build/Client/client '2' < '$test_dir/c2_input.txt' &"
+    #sleep .2
     echo "------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-    sleep 2
+    sleep 60
 done
