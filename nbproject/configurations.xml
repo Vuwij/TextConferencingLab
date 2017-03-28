@@ -40,7 +40,6 @@
         <itemPath>src/server/user_list.h</itemPath>
         <itemPath>src/server/voice_queue.h</itemPath>
       </logicalFolder>
-      <itemPath>src/audio_packet.c</itemPath>
       <itemPath>src/message.c</itemPath>
       <itemPath>src/print_debug.c</itemPath>
     </logicalFolder>
@@ -76,8 +75,6 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="src/audio_packet.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
@@ -142,8 +139,6 @@
           <commandLine>-cstd=c11</commandLine>
         </cTool>
       </compileType>
-      <item path="src/audio_packet.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
@@ -215,8 +210,6 @@
           </incDir>
         </ccTool>
       </compileType>
-      <item path="src/audio_packet.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
@@ -278,8 +271,6 @@
       </toolsSet>
       <compileType>
       </compileType>
-      <item path="src/audio_packet.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
@@ -341,8 +332,6 @@
       </toolsSet>
       <compileType>
       </compileType>
-      <item path="src/audio_packet.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">

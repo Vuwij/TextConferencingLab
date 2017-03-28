@@ -35,7 +35,6 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/src/audio_packet.o \
 	${OBJECTDIR}/src/client/audio_input.o \
 	${OBJECTDIR}/src/client/audio_output.o \
 	${OBJECTDIR}/src/client/client.o \
@@ -72,11 +71,6 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/textconferencinglab ${OBJECTFILES} ${LDLIBSOPTIONS}
-
-${OBJECTDIR}/src/audio_packet.o: src/audio_packet.c 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/audio_packet.o src/audio_packet.c
 
 ${OBJECTDIR}/src/client/audio_input.o: src/client/audio_input.c 
 	${MKDIR} -p ${OBJECTDIR}/src/client

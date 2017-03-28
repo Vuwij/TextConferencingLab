@@ -4,10 +4,10 @@
 #include <sys/socket.h>
 #include <pthread.h>
 
-#include "audio_input.h"
 #include "../constants.h"
-#include "status.h"
 #include "../audio_packet.h"
+#include "audio_input.h"
+#include "status.h"
 
 snd_pcm_t *capture_handle;
 AudioPacket audiopacket;
@@ -53,7 +53,7 @@ void setup_capture() {
                 snd_strerror(err));
         exit(1);
     }
-    if ((err = snd_pcm_hw_params_set_channels(capture_handle, hw_params, 2)) < 0) {
+    if ((err = snd_pcm_hw_params_set_channels(capture_handle, hw_params, CHANNEL_COUNT)) < 0) {
         fprintf(stderr, "cannot set channel count (%s)\n",
                 snd_strerror(err));
         exit(1);
@@ -82,22 +82,26 @@ void *capture(void *t) {
     stop_capture = false;
     while (1) {
 
-        // Update the time
-        gettimeofday(&audiopacket.time, NULL);
-
-        long long time_in_mill = (audiopacket.time.tv_sec) * 1000 + (audiopacket.time.tv_usec) / 1000;
-        PRINT("%ld\n", time_in_mill);
-
+        // Update the start time
+        gettimeofday(&audiopacket.start_time, NULL);
+        
         if ((err = snd_pcm_readi(capture_handle, &audiopacket.data, AUDIO_PACKET_S)) != AUDIO_PACKET_S) {
             fprintf(stderr, "read from audio interface failed (%s)\n",
                     snd_strerror(err));
             exit(1);
         }
-
-//        for (int i = 0; i < 1024; i++) {
-//            PRINT("%hd ", outpacket.data[i]);
-//        }
-
+        
+        // Update the end time
+        gettimeofday(&audiopacket.end_time, NULL);
+       
+        // Increase the number of the packet
+        audiopacket.packet_num++;
+        
+        
+//        long long start_mill = (audiopacket.start_time.tv_sec) * 1000 + (audiopacket.start_time.tv_usec) / 1000;
+//        long long end_mill = (audiopacket.end_time.tv_sec) * 1000 + (audiopacket.end_time.tv_usec) / 1000;
+        PRINT("S %u\n", audiopacket.packet_num);
+//        
         pthread_mutex_lock(&udp_port_lock);
         if ((numbytes = sendto(status.voicefd, &audiopacket, sizeof (audiopacket.data), 0,
                 status.udp->ai_addr, status.udp->ai_addrlen)) == -1) {
@@ -119,7 +123,8 @@ void open_capture() {
 
     long t = 1;
     stop_capture = false;
-
+    audiopacket.packet_num = 0; // The first packet
+    
     // Define the source of the sender
     strcpy(audiopacket.source, status.client_id);
 

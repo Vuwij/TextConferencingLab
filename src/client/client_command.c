@@ -289,14 +289,14 @@ bool join_call() {
 
     Message* r;
     r = receive_message(status.sockfd);
-
+    
+    // Start the capture and send thread
+    open_capture();
+    
     // Start receiving everything
     FD_SET(status.voicefd, &master);
     fdmax = fdmax > status.voicefd ? fdmax : status.voicefd;
     
-    // Start the capture and send thread
-    open_capture();
-
     free(r);
     return true;
 }

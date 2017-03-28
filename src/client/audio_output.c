@@ -4,6 +4,7 @@
 #include <poll.h>
 #include <alsa/asoundlib.h>
 #include <math.h>
+#include <sys/time.h>
 
 #include "audio_output.h"
 #include "../constants.h"
@@ -11,22 +12,22 @@
 
 AudioPacket outpacket;
 snd_pcm_t *playback_handle;
+static unsigned int buffer_time = 500000;
+static unsigned int period_time = 100000; /* period time in us */
+static snd_pcm_sframes_t period_size;
+static snd_pcm_sframes_t buffer_size;
+
+struct timeval a, b;
 
 int playback_callback(snd_pcm_sframes_t nframes) {
     int err;
 
-    PRINT("playback callback called with %ld frames\n", nframes);
-
-    /* ... fill buf with data ... */
-    for(int i = 0; i < nframes; i++) {
-        PRINT("%hd ", outpacket.data[i]);
-    }
-    PRINT("\n");
-    
+    //    PRINT("playback callback called with %ld frames\n", nframes);
+    PRINT("R %d\n", outpacket.packet_num);
     if ((err = snd_pcm_writei(playback_handle, &outpacket.data, nframes)) < 0) {
         fprintf(stderr, "write failed (%s)\n", snd_strerror(err));
     }
-    
+
     return err;
 }
 
@@ -36,9 +37,10 @@ void setup_playback() {
     snd_pcm_hw_params_t *hw_params;
     snd_pcm_sw_params_t *sw_params;
     int nfds;
-    int err;
+    int err, dir;
     struct pollfd *pfds;
-    
+    snd_pcm_uframes_t size;
+
     /* Hardware Parameters */
     if ((err = snd_pcm_open(&playback_handle, AUDIO_OUTPUT_N, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
         fprintf(stderr, "cannot open audio device %s (%s)\n",
@@ -77,13 +79,37 @@ void setup_playback() {
                 snd_strerror(err));
         exit(1);
     }
+    /* set the buffer time */
+    err = snd_pcm_hw_params_set_buffer_time_near(playback_handle, hw_params, &buffer_time, &dir);
+    if (err < 0) {
+        printf("Unable to set buffer time %i for playback: %s\n", buffer_time, snd_strerror(err));
+        exit(1);
+    }
+    err = snd_pcm_hw_params_get_buffer_size(hw_params, &size);
+    if (err < 0) {
+        printf("Unable to get buffer size for playback: %s\n", snd_strerror(err));
+        exit(1);
+    }
+    buffer_size = size;
+    /* set the period time */
+    err = snd_pcm_hw_params_set_period_time_near(playback_handle, hw_params, &period_time, &dir);
+    if (err < 0) {
+        printf("Unable to set period time %i for playback: %s\n", period_time, snd_strerror(err));
+        exit(1);
+    }
+    err = snd_pcm_hw_params_get_period_size(hw_params, &size, &dir);
+    if (err < 0) {
+        printf("Unable to get period size for playback: %s\n", snd_strerror(err));
+        exit(1);
+    }
+    period_size = size;
     if ((err = snd_pcm_hw_params(playback_handle, hw_params)) < 0) {
         fprintf(stderr, "cannot set parameters (%s)\n",
                 snd_strerror(err));
         exit(1);
     }
     snd_pcm_hw_params_free(hw_params);
-    
+
     /* Software Parameters */
     if ((err = snd_pcm_sw_params_malloc(&sw_params)) < 0) {
         fprintf(stderr, "cannot allocate software parameters structure (%s)\n",
@@ -110,19 +136,19 @@ void setup_playback() {
                 snd_strerror(err));
         exit(1);
     }
-    
+
     if ((err = snd_pcm_prepare(playback_handle)) < 0) {
         fprintf(stderr, "cannot prepare audio interface for use (%s)\n",
                 snd_strerror(err));
         exit(1);
     }
-    
 }
 
 void send_buffer_to_output() {
+
     // Prepares the audio interface for use
     snd_pcm_sframes_t frames_to_deliver;
-    
+
     // Wait 1 second for the playback to be ready
     int err;
     if ((err = snd_pcm_wait(playback_handle, 1000)) < 0) {
@@ -130,7 +156,7 @@ void send_buffer_to_output() {
         end_playback();
         return;
     }
-    
+
     /* find out how much space is available for playback data */
     if ((frames_to_deliver = snd_pcm_avail_update(playback_handle)) < 0) {
         if (frames_to_deliver == -EPIPE) {
@@ -143,8 +169,10 @@ void send_buffer_to_output() {
             return;
         }
     }
+    
+    //PRINT("%d\n", frames_to_deliver);
+    frames_to_deliver = frames_to_deliver > PACKET_SIZE ? PACKET_SIZE : frames_to_deliver;
 
-    frames_to_deliver = frames_to_deliver > BUFFER_CHUNK/2 ? BUFFER_CHUNK/2 : frames_to_deliver;
 
     /* deliver the data */
     if (playback_callback(frames_to_deliver) != frames_to_deliver) {

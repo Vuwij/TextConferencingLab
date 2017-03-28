@@ -2,8 +2,7 @@
 #define AUDIO_INPUT_H
 
 #define AUDIO_INPUT_N   "default"
-#define SAMPLE_RATE     44100
-#define AUDIO_PACKET_S  1024
+#define AUDIO_PACKET_S  PACKET_SIZE
 
 #include <pthread.h>
 #include <stdbool.h>
