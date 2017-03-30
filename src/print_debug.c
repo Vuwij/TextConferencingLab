@@ -6,7 +6,7 @@ PRINT_SRC print_src = SERVER;
 void PRINT(const char * pString, ...) {
     va_list args;
 
-    switch(print_src) {
+    switch (print_src) {
         case SERVER:
             break;
         case CLIENT1:
@@ -19,13 +19,13 @@ void PRINT(const char * pString, ...) {
             printf("                                                                                                     ");
             break;
         case CLIENT4:
-            printf("                                                                                                                                       ");    
+            printf("                                                                                                                                       ");
             break;
         default:
             break;
     }
-    
-    va_start( args, pString );
+
+    va_start(args, pString);
     vprintf(pString, args);
     va_end(args);
 }

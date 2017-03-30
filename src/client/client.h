@@ -8,6 +8,17 @@
 #include "audio_output.h"
 #include "audio_input.h"
 
+/* use these strings to tell the marker what is happening */
+#define FMT_CONNECT_ERR "CLIENT: SSL connect error\n"
+#define FMT_SERVER_INFO "CLIENT: %s %s %s\n"
+#define FMT_OUTPUT "CLIENT: %s %s\n"
+#define FMT_INCORRECT_CLOSE "CLIENT: Premature close\n"
+
+#define PASSWORD "password"
+#define KEY_FILE_PATH "alice.pem"
+#define EXPECTED_HOST_NAME "Bob's server"
+#define EXPECTED_SERVER_EMAIL "ece568bob@ecf.utoronto.ca"
+
 extern Status status;
 extern fd_set master;
 extern int fdmax;
@@ -28,6 +39,13 @@ bool quit();
 
 bool send_message(char* message);
 
+
+/*******************************************************************************
+ *  SSL Functions
+ ******************************************************************************/
+void verify_server_cert(SSL *ssl, char *host, char*email);
+
+static void clean_up(int sock, SSL *ssl);
 bool start_call();
 
 bool join_call();

@@ -6,6 +6,7 @@
 
 #include "user.h"
 #include "../constants.h"
+#include "../ssl_common.h"
 
 typedef enum login_error {
     ERR_NO = 0,
@@ -17,9 +18,8 @@ typedef enum login_error {
 typedef struct user_list {
     User* user;
     char session_id[MAXDATASIZE];
-    int fd;                             // Control Port FD
-    struct sockaddr_storage* udp_addr;   // Data Port Address
-    
+    int fd;
+    SSL *ssl;
     struct user_list *next;
 } User_List;
 
@@ -29,7 +29,7 @@ User_List* find_active_user(const char *id);
 
 User_List* find_active_user_fd(int sock_fd);
 
-void add_user(User* user, int fd);
+void add_user(User* user, int fd, SSL *ssl);
 
 bool delete_user(char *id);
 

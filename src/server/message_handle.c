@@ -9,7 +9,7 @@
 #include "session_list.h"
 #include "server.h"
 
-void login(Message* msg, int fd) {
+void login(Message* msg, int fd, SSL *ssl) {
     PRINT("Login Request: %s, %s\n", msg->source, msg->data);
 
     // Check User ID and Password
@@ -23,7 +23,7 @@ void login(Message* msg, int fd) {
     switch (authen_status) {
         case ERR_NO:
             PRINT("User Valid\n");
-            add_user(found_user, fd);
+            add_user(found_user, fd, ssl);
             m.type = LO_ACK;
             break;
         case ERR_LOGGED_IN:
@@ -45,10 +45,10 @@ void login(Message* msg, int fd) {
             PRINT("Server Error Occurred\n");
             exit(0);
     }
-    deliver_message(&m, fd);
-    
+    deliver_message(&m, ssl);
+
     // Close the port from the server
-    if(authen_status != ERR_NO) {
+    if (authen_status != ERR_NO) {
         FD_CLR(fd, &master);
         close(fd);
     }
@@ -117,7 +117,7 @@ void join(Message* msg, int fd) {
         PRINT("Added User %s to Session %s\n", id, session_id);
     }
 
-    deliver_message(&r, fd);
+    deliver_message(&r, user->ssl);
 }
 
 void leave_sess(Message* msg, int fd) {
@@ -151,9 +151,9 @@ void new_sess(Message* msg, int fd) {
 
     // Find the user associated
     User_List* user = find_active_user(id);
-    
+
     assert(user != NULL);
-    
+
     // Check that the session exists
     Session* session = find_session(session_id);
     Message r;
@@ -166,12 +166,16 @@ void new_sess(Message* msg, int fd) {
         open_session(session_id);
 
     }
-    deliver_message(&r, fd);
+    deliver_message(&r, user->ssl);
 }
 
 void query(Message* msg, int fd) {
     print_active_users();
     print_active_sessions();
+
+    // Find the user associated
+    char *id = msg->source;
+    User_List* user = find_active_user(id);
 
     char sess_str[MAXDATASIZE];
     get_session_string(sess_str);
@@ -180,7 +184,7 @@ void query(Message* msg, int fd) {
     m.type = QU_ACK;
     strncpy(m.data, sess_str, MAX_DATA);
 
-    deliver_message(&m, fd);
+    deliver_message(&m, user->ssl);
 }
 
 void message(Message* msg, int fd) {
@@ -204,8 +208,8 @@ void message(Message* msg, int fd) {
     for (int i = 0; i <= session->fd_max; i++) {
         if (FD_ISSET(i, &session->client_fds)) {
             if (i != fd) {
-                //PRINT("Deliver to %d\n", session->client_ports);
-                deliver_message(msg, i);
+                User_List *temp = find_active_user_fd(i);
+                deliver_message(msg, temp->ssl);
             }
         }
     }
@@ -259,13 +263,13 @@ void handle_end_call(Message* msg, int fd) {
 }
 
 /* Handles the message */
-void handle_client_message(Message* msg, int fd) {
+void handle_client_message(Message* msg, int fd, SSL *ssl) {
 
     switch (msg->type) {
         case CONNECT:
             break;
         case LOGIN:
-            login(msg, fd);
+            login(msg, fd, ssl);
             break;
         case EXIT:
             exitserver(msg, fd);
