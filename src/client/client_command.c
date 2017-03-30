@@ -91,7 +91,7 @@ bool login(char* client_id, char* password, char* server_ip, int server_port) {
     status.connected_server_port = server_port;
 
     if (r->type == LO_NAK) {
-        PRINT("Login Failed: %s\n", r->data);
+        PRINT("Login Failed: %s", r->data);
         status.sockfd = -1;
     }
 
