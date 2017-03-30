@@ -16,7 +16,15 @@ typedef enum {
     NS_NAK = 11,
     MESSAGE = 12,
     QUERY = 13,
-    QU_ACK = 14
+    QU_ACK = 14,
+    ST_CONF = 15,
+    ST_CONF_INIT = 16,
+    ST_CONF_INIT_ACK = 17,
+    ST_CONF_ACK = 18,
+    ST_CONF_NCK = 19,
+    END_CONF = 20,
+    END_CONF_ACK = 21,
+    END_CONF_NCK = 22
 } control_packet_t;
 
 #endif /* PACKET_TYPE_H */

@@ -2,11 +2,13 @@ MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
 
-LIBS := -lssl -lcrypto
-LDFLAGS := $(LIBS)
+CC=gcc
 
 SERVER=build/Server
 CLIENT=build/Client
+
+CFLAGS = -std=gnu11
+LDFLAGS += -lasound -lm -lpthread -lssl -lcrypto
 
 # default
 default: .create_dir .client .server

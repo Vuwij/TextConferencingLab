@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
+
 #include "../message.h"
 #include "../packet_type.h"
 #include "user_list.h"
@@ -73,10 +74,13 @@ void exitserver(Message* msg, int fd) {
 
     // Delete User from UserList
     bool deleteSuccess = delete_user(user->user->id);
-    if (!deleteSuccess)
+    if (!deleteSuccess) {
         fprintf(stderr, "ERROR: unable to delete user with id %d", user->user->id);
-    else
+    }
+    else {
+        control_fd[fd] = false;
         close(fd);
+    }
 }
 
 void join(Message* msg, int fd) {
@@ -107,7 +111,7 @@ void join(Message* msg, int fd) {
         strcpy(user->session_id, session_id);
         add_user_to_session(session, user->user);
         assert(fd == user->fd);
-        FD_SET(fd, &session->client_ports);
+        FD_SET(fd, &session->client_fds);
         if (fd > session->fd_max)
             session->fd_max = fd;
         PRINT("Added User %s to Session %s\n", id, session_id);
@@ -202,13 +206,60 @@ void message(Message* msg, int fd) {
     PRINT("BCAST: %s", msg->data);
 
     for (int i = 0; i <= session->fd_max; i++) {
-        if (FD_ISSET(i, &session->client_ports)) {
+        if (FD_ISSET(i, &session->client_fds)) {
             if (i != fd) {
                 User_List *temp = find_active_user_fd(i);
                 deliver_message(msg, temp->ssl);
             }
         }
     }
+}
+
+void handle_start_call(Message* msg, int fd) {
+    PRINT("Starting call requested\n");
+    char *id = msg->source;
+
+    // Find the user associated
+    User_List* user = find_active_user(id);
+    assert(user != NULL);
+
+    char *session_id = user->session_id;
+
+    // If the user has not joined the session
+    if (strcmp(session_id, "") == 0)
+        return;
+    
+    Session* session = find_session(session_id);
+    assert(session != NULL);
+    
+    // Send a reply to the original sender
+    Message m;
+    m.type = ST_CONF_ACK;
+    deliver_message(&m, fd);
+    
+    // Send notification to other connected users that a voice conference is starting
+    start_call(session);
+}
+
+void handle_end_call(Message* msg, int fd) {
+    PRINT("Ending call\n");
+    
+    char *id = msg->source;
+
+    // Find the user associated
+    User_List* user = find_active_user(id);
+    assert(user != NULL);
+
+    char *session_id = user->session_id;
+
+    // If the user has not joined the session
+    if (strcmp(session_id, "") == 0)
+        return;
+
+    Session* session = find_session(session_id);
+    assert(session != NULL);
+    
+    end_call(session);
 }
 
 /* Handles the message */
@@ -238,9 +289,13 @@ void handle_client_message(Message* msg, int fd, SSL *ssl) {
         case QUERY:
             query(msg, fd);
             break;
+        case ST_CONF:
+            handle_start_call(msg, fd);
+            break;
+        case END_CONF:
+            handle_end_call(msg, fd);
+            break;
         default:
             fprintf(stderr, "Incorrect packet type sent by client. Received %d", (int) msg->type);
     }
 }
-
-

@@ -2,6 +2,7 @@
 #define USER_LIST
 
 #include <stdbool.h>
+#include <sys/socket.h>
 
 #include "user.h"
 #include "../constants.h"

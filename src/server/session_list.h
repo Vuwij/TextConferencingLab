@@ -27,5 +27,9 @@ void print_active_sessions();
 
 void get_session_string(char *sess_str);
 
+void start_call(Session* session);
+
+void end_call(Session* session);
+
 #endif /* SESSIONS_H */
 

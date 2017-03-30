@@ -16,6 +16,8 @@
 
 #include "../ssl_common.h"
 #include "server.h"
+#include "audio_port.h"
+#include "../audio_packet.h"
 
 SSL_CTX *ctx;
 int port;
@@ -98,19 +100,19 @@ void open_server_socket(int port) {
         return;
     }
 
-    for (p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                p->ai_protocol)) == -1) {
+    for (audio_port = servinfo; audio_port != NULL; audio_port = audio_port->ai_next) {
+        if ((sockfd_c = socket(audio_port->ai_family, audio_port->ai_socktype,
+                audio_port->ai_protocol)) == -1) {
             perror("server: socket");
             continue;
         }
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes,
+        if (setsockopt(sockfd_c, SOL_SOCKET, SO_REUSEADDR, &yes,
                 sizeof (int)) == -1) {
             perror("setsockopt");
             exit(1);
         }
-        if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-            close(sockfd);
+        if (bind(sockfd_c, audio_port->ai_addr, audio_port->ai_addrlen) == -1) {
+            close(sockfd_c);
             perror("server: bind");
             continue;
         }
@@ -119,11 +121,11 @@ void open_server_socket(int port) {
 
     freeaddrinfo(servinfo);
 
-    if (p == NULL) {
+    if (audio_port == NULL) {
         fprintf(stderr, "server: failed to bind\n");
         exit(1);
     }
-    if (listen(sockfd, BACKLOG) == -1) {
+    if (listen(sockfd_c, BACKLOG) == -1) {
         perror("listen");
         exit(1);
     }
@@ -140,44 +142,47 @@ void open_server_socket(int port) {
 }
 
 void listen_for_messages() {
+    PRINT("Waiting for Clients\n");
+
     //Initialize File Descriptor
-    fd_set read_fds; // temp file descriptor list for select()
+    fd_set read_fds;
+
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
-    FD_SET(sockfd, &master); // add the listener to the master set
 
-    int fdmax = sockfd; // keep track of the biggest file descriptor
+    FD_SET(sockfd_c, &master); // add the Control listener to the master set
+    FD_SET(sockfd_d, &master); // add the Data listener to the master set
+    
+    int fdmax = sockfd_c > sockfd_d ? sockfd_c : sockfd_d;
 
     struct sockaddr_storage remoteaddr; // client address
     char remoteIP[INET6_ADDRSTRLEN];
-
     int nbytes;
-
-    // main loop
-    PRINT("Waiting for Clients\n");
 
     while (1) {
         // Copy the master to the temporary FD
         read_fds = master;
         if (select(fdmax + 1, &read_fds, NULL, NULL, &tv) == -1) {
-
             perror("select - server");
             exit(4);
         }
 
-        // run through the existing connections looking for data to read
         for (int i = 0; i <= fdmax; i++) {
+            if (FD_ISSET(i, &read_fds)) {
+
+                if (i == sockfd_c) { // Received a data from the control port
             if (FD_ISSET(i, &read_fds)) { // we got one!!
                 SSL *ssl;
                 // New Connections
                 if (i == sockfd) {
                     socklen_t addrlen = sizeof remoteaddr;
-                    int newfd = accept(sockfd,
+                    int newfd = accept(sockfd_c,
                             (struct sockaddr *) &remoteaddr, &addrlen);
                     if (newfd == -1) {
                         perror("accept");
                     } else {
                         FD_SET(newfd, &master); // add to master set
+                        control_fd[newfd] = true;
                         if (newfd > fdmax) fdmax = newfd;
 
                         PRINT("New Con. %s on socket %d\n",
@@ -196,28 +201,41 @@ void listen_for_messages() {
                         verify_client_cert(ssl, EXPECTED_HOST_NAME, EXPECTED_CLIENT_EMAIL);
 
                     }
-                } else {
+                }
+                else if (i == sockfd_d) { // Received a data from the data port
+                    // Add UDP socket into the fd list
+                    AudioPacket* audiopacket = (AudioPacket*) malloc(sizeof(AudioPacket));
+                    socklen_t addrlen = sizeof remoteaddr;
+                    
+                    if ((nbytes = recvfrom(sockfd_d, audiopacket, sizeof (AudioPacket), 0,
+                            (struct sockaddr *) &remoteaddr, &addrlen)) == -1) {
+                        perror("recvfrom udp");
+                        exit(1);
+                    }
+                    
+                    process_audio_packets(audiopacket, remoteaddr);
+                }
+                else { // Received control port info
                     Message* msg = (Message*) malloc(sizeof (Message));
                     if ((nbytes = SSL_read(ssl, msg, sizeof (Message))) <= 0) {
                         // got error or connection closed by client
                         if (nbytes == 0) PRINT("selectserver: socket %d hung up\n", i);
                         else perror("recv");
-                        exitserver(msg, i);
 
+                        exitserver(msg, i);
                     } else {
                         if (DEBUG_MSG) print_message(msg);
                         handle_client_message(msg, i, ssl);
                     }
                     free(msg);
-                } // END handle data from client
-            } // END got new incoming connection
-        } // END looping through file descriptors
-    } // END while(1) 
+                }
+            }
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
     if (argc != 2) usage(argv[0]);
-    PRINT("Started\n");
 
     // Obtain the Port Number
     port = atoi(argv[1]);
@@ -226,7 +244,11 @@ int main(int argc, char *argv[]) {
                 port, MIN_PORTNUM, MAX_PORTNUM);
         usage(argv[0]);
     }
-
+    
+    // Open the audio listener socket
+    open_audio_socket(port_c + 1);
+    PRINT("Opened Data Port: %d\n", port_c + 1);
+    
     // Open a server side socket
     open_server_socket(port);
     ctx = initialize_ctx(KEY_FILE_PATH, PASSWORD);
@@ -239,7 +261,7 @@ int main(int argc, char *argv[]) {
     // The main iteration loop
     listen_for_messages();
 
-    close(sockfd);
+    close(sockfd_c);
     return 0;
 }
 

@@ -12,6 +12,7 @@
 
 #include "client.h"
 #include "status.h"
+#include "audio_input.h"
 
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
@@ -220,6 +221,7 @@ bool list() {
         PRINT("Invalid packet %d\n", (int) r->type);
 
     free(r);
+    return false;
 }
 
 bool quit() {
@@ -284,4 +286,89 @@ void verify_server_cert(SSL *ssl, char *host, char *email) {
     X509_NAME_get_text_by_NID(X509_get_issuer_name(peer),
             NID_commonName, issuer_CN, 256);
 
+}
+bool start_call() {
+    PRINT("Starting Call\n");
+
+    Message m;
+    m.type = ST_CONF;
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
+    deliver_message(&m, status.sockfd);
+
+    Message* r;
+    r = receive_message(status.sockfd);
+
+    if (r->type == ST_CONF_NCK) {
+        PRINT(r->data);
+        free(r);
+        return false;
+    }
+
+    PRINT("Call Started, Joining call\n");
+    free(r);
+
+    return true;
+}
+
+bool join_call() {
+    PRINT("Joining call\n");
+    setup_capture();
+    setup_playback();
+
+    // Open the UDP socket to the server
+    int sockfd;
+    struct addrinfo hints, *servinfo, *p;
+    int rv;
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
+
+    char* address = status.connected_server_ip;
+    char port[MAXDATASIZE];
+    PRINT("Open UDP Port to %d\n", status.connected_server_port + 1);
+    sprintf(port, "%d", status.connected_server_port + 1);
+
+    if ((rv = getaddrinfo(address, port, &hints, &servinfo)) != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        return 1;
+    }
+
+    // loop through all the results and make a socket
+    for (p = servinfo; p != NULL; p = p->ai_next) {
+        if ((sockfd = socket(p->ai_family, p->ai_socktype,
+                p->ai_protocol)) == -1) {
+            perror("client: socket");
+            continue;
+        }
+        break;
+    }
+
+    if (p == NULL) {
+        fprintf(stderr, "client: failed to create socket\n");
+        return 2;
+    }
+
+    // Add this information to status
+    status.udp = p;
+    status.voicefd = sockfd;
+
+    // Send a reply to the server
+    Message m;
+    m.type = ST_CONF_INIT_ACK;
+    snprintf(m.source, MAX_NAME, "%s", status.client_id);
+    deliver_message(&m, status.sockfd);
+
+    Message* r;
+    r = receive_message(status.sockfd);
+    
+    // Start the capture and send thread
+    open_capture();
+    
+    // Start receiving everything
+    FD_SET(status.voicefd, &master);
+    fdmax = fdmax > status.voicefd ? fdmax : status.voicefd;
+    
+    free(r);
+    return true;
 }

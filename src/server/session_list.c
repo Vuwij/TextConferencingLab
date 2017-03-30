@@ -11,9 +11,12 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <assert.h>
+#include <sys/select.h>
+
 #include "session_list.h"
 #include "user_list.h"
-#include <assert.h>
+#include "../message.h"
 
 Session_List* session_list;
 
@@ -24,7 +27,7 @@ Session* open_session(char *id) {
     strcpy(new_session->session.id, id);
     new_session->session.fd_max = -1;
     new_session->session.num_user = 0;
-    FD_ZERO(&new_session->session.client_ports);
+    FD_ZERO(&new_session->session.client_fds);
     int i;
     for (i = 0; i < MAX_USERS_PER_SESSION; i++)
         new_session->session.users[i] = NULL;
@@ -81,7 +84,6 @@ void close_session(char *session_id) {
 }
 
 void add_user_to_session(Session* session, User* user) {
-
     int avail_slot = NOT_AVAIL;
     assert(session != NULL);
     // Check for existing user
@@ -95,17 +97,16 @@ void add_user_to_session(Session* session, User* user) {
             fprintf(stderr, "ERROR: User %d already exists in session %d", user->id, session->id);
     }
 
-    if (avail_slot == NOT_AVAIL)
+    if (avail_slot == NOT_AVAIL) {
         fprintf(stderr, "ERROR: Session is Full\n");
-    else {
+    } else {
         session->users[avail_slot] = user;
         session->num_user++;
     }
 }
 
 /* Remove the user through iterating*/
-void remove_user_from_session(Session* session, User_List* user) {
-
+void remove_user_from_session(Session *session, User_List* user) {
     for (int i = 0; i < MAX_USERS_PER_SESSION; i++) {
         if (session->users[i] == NULL)
             continue;
@@ -113,7 +114,7 @@ void remove_user_from_session(Session* session, User_List* user) {
         if (session->users[i]->id == user->user->id) {
             session->users[i] = NULL;
 
-            FD_CLR(user->fd, &session->client_ports);
+            FD_CLR(user->fd, &session->client_fds);
             session->num_user--;
             return;
         }
@@ -182,4 +183,38 @@ void get_session_string(char *sess_str) {
         strncat(sess_str, "\n", MAXDATASIZE);
         s = s->next;
     }
+}
+
+void start_call(Session* session) {
+    // Send clients TCP message telling them to open UDP ports to the data port
+    Message m, *r;
+    m.type = ST_CONF_INIT;
+    strcpy(m.data, "Begin Call ACK\n");
+    
+    for(int i = 0; i <= session->fd_max; i++) {
+        if(FD_ISSET(i, &session->client_fds)) {
+            PRINT("Call Req %d\n", i);
+            deliver_message(&m, i);
+        }
+    }
+    for(int i = 0; i <= session->fd_max; i++) {
+        if(FD_ISSET(i, &session->client_fds)) {
+            r = receive_message(i);
+            if(r->type == ST_CONF_INIT_ACK) {
+                PRINT("Confirmed\n", i);
+            }
+        }
+    }
+    // Send it again to start
+    for(int i = 0; i <= session->fd_max; i++) {
+        if(FD_ISSET(i, &session->client_fds)) {
+            deliver_message(&m, i);
+        }
+    }
+}
+
+void end_call(Session* session) {
+    // Send clients TCP message telling them to close UDP ports
+    
+    // Hear client TCP reply, then close the session
 }

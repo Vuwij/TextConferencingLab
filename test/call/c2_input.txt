@@ -1,0 +1,3 @@
+/login User2 User2 ug223 5007
+/joinsession 1
+/startcall

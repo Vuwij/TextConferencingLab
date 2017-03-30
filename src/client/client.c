@@ -32,10 +32,15 @@ void input_usage() {
     PRINT("  /joinsession <session ID>\n");
     PRINT("  /leavesession\n");
     PRINT("  /createsession <session ID>\n");
+    PRINT("  /startcall\n");
+    PRINT("  /joincall\n");
     PRINT("  /list\n");
     PRINT("  /quit\n");
     PRINT("  <text>\n");
 }
+
+fd_set master;
+int fdmax = STDIN;
 
 int main(int argc, char *argv[]) {
     if (argc > 2) usage(argv[0]);
@@ -43,8 +48,9 @@ int main(int argc, char *argv[]) {
     PRINT("Started\n");
 
     // Status of the client
-    bool logged_in;
-    bool in_session;
+    bool logged_in = false;
+    bool in_session = false;
+    bool call_started = false;
 
     // User Input
     char server_ip[MAXBUFSIZE];
@@ -58,14 +64,12 @@ int main(int argc, char *argv[]) {
     char command[MAXBUFSIZE];
 
     // File descriptor for standard input
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 50000;
-    fd_set master;
     fd_set read_fds;
+    status.voicefd = -1;
     FD_ZERO(&read_fds);
+    FD_ZERO(&master);
     FD_SET(STDIN, &master);
-    int fdmax = STDIN;
+
     int ret = 0;
 
     /*************************************************************************
@@ -92,6 +96,27 @@ int main(int argc, char *argv[]) {
                     Message* msg = receive_message(status.ssl);
                     PRINT("%s: %s\n", msg->source, msg->data);
                 }
+                Message* msg = receive_message(status.sockfd);
+
+                if (msg->type == ST_CONF_INIT) {
+                    join_call();
+                    continue;
+                }
+
+                PRINT("%s: %s\n", msg->source, msg->data);
+                free(msg);
+            }
+            // Check if there is a voice packet to be played
+            if (FD_ISSET(status.voicefd, &read_fds)) {
+                int numbytes;
+                pthread_mutex_lock(&udp_port_lock);
+                if ((numbytes = recvfrom(status.voicefd, &outpacket, sizeof(AudioPacket), 0,
+                        (struct sockaddr *) status.udp->ai_addr, &status.udp->ai_addrlen)) == -1) {
+                    perror("c: recvfrom");
+                    exit(1);
+                }
+                pthread_mutex_unlock(&udp_port_lock);
+                send_buffer_to_output();
             }
         }
 
@@ -111,7 +136,7 @@ int main(int argc, char *argv[]) {
                 }
                 send_message(input);
             } else {
-                if (sscanf(input, "%s %s %s %s %d", command, &client_id, password, server_ip, &server_port) == 5) {
+                if (sscanf(input, "%s %s %s %s %d", command, client_id, password, server_ip, &server_port) == 5) {
                     if (strncmp(command, "/login", strlen("/login")) != 0) {
                         input_usage();
                         continue;
@@ -171,7 +196,6 @@ int main(int argc, char *argv[]) {
                             logged_in = false;
                             FD_CLR(status.sockfd, &master);
                             status.sockfd = -1;
-                            fdmax = STDIN;
                         }
                     } else if (strncmp(command, "/leavesession", strlen("/leavesession")) == 0) {
                         if (!logged_in) {
@@ -191,6 +215,34 @@ int main(int argc, char *argv[]) {
                             continue;
                         }
                         list();
+                    } else if (strncmp(command, "/startcall", strlen("/startcall")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (!in_session) {
+                            PRINT("Not entered into any session\n");
+                            continue;
+                        }
+                        if (call_started) {
+                            PRINT("Already in call\n");
+                            continue;
+                        }
+                        start_call();
+                    } else if (strncmp(command, "/joincall", strlen("/joincall")) == 0) {
+                        if (!logged_in) {
+                            PRINT("Not logged into any server\n");
+                            continue;
+                        }
+                        if (!in_session) {
+                            PRINT("Not entered into any session\n");
+                            continue;
+                        }
+                        if (!call_started) {
+                            PRINT("No active calls in session\n");
+                            continue;
+                        }
+                        join_call();
                     } else if (strncmp(command, "/quit", strlen("/quit")) == 0) {
                         if (in_session) {
                             bool success = leave_session();
