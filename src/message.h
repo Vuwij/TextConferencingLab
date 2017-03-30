@@ -1,5 +1,5 @@
 #ifndef MESSAGE_H
-#define	MESSAGE_H
+#define MESSAGE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +12,8 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <openssl/ssl.h>
+
 
 #include "packet_type.h"
 // The message protocol that will be used for the transfer of data
@@ -24,13 +26,13 @@ typedef struct {
     unsigned int size;
     unsigned char source[MAX_NAME];
     unsigned char data[MAX_DATA];
-}Message;
+} Message;
 
-int deliver_message(Message* message, int sockfd);
+int deliver_message(Message* message, SSL *ssl);
 
-Message* receive_message(int sockfd);
+Message* receive_message(SSL *ssl);
 
 void print_message(Message* message);
 
-#endif	/* MESSAGE_H */
+#endif /* MESSAGE_H */
 

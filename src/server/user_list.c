@@ -25,7 +25,7 @@ Login_Error authenticate_existing_user(const char *id, const char* password, Use
             if (strncmp(registered_users[i].password, password, sizeof (password)) == 0) {
                 *user_ret = &registered_users[i];
                 // Check if there is anyone logged in with the same ID
-                if (find_active_user(id) == NULL) 
+                if (find_active_user(id) == NULL)
                     return ERR_NO;
                 else
                     return ERR_LOGGED_IN;
@@ -58,8 +58,8 @@ User_List* find_active_user_fd(int sock_fd) {
     return NULL;
 }
 
-void add_user(User* user, int fd) {
-    
+void add_user(User* user, int fd, SSL *ssl) {
+
     User_List* curr = online_users;
 
     User_List* new_user = (User_List*) malloc(sizeof (User_List));
@@ -67,6 +67,7 @@ void add_user(User* user, int fd) {
     new_user->next = NULL;
     strcpy(new_user->session_id, "");
     new_user->fd = fd;
+    new_user->ssl = ssl;
 
     if (online_users == NULL) {
         online_users = new_user;

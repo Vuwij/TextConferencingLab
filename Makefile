@@ -2,6 +2,9 @@ MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
 
+LIBS := -lssl -lcrypto
+LDFLAGS := $(LIBS)
+
 SERVER=build/Server
 CLIENT=build/Client
 
@@ -12,10 +15,10 @@ default: .create_dir .client .server
 	mkdir -p $(CLIENT) && mkdir -p $(SERVER)
 
 .client:
-	gcc -std=gnu11 -o $(CLIENT)/client src/*.c src/client/*.c
+	gcc $(LDFLAGS) -std=gnu11 -o $(CLIENT)/client src/*.c src/client/*.c
 
 .server:
-	gcc -std=gnu11 -o $(SERVER)/server src/*.c src/server/*.c
+	gcc $(LDFLAGS) -std=gnu11 -o $(SERVER)/server src/*.c src/server/*.c
 
 
 # include project implementation makefile

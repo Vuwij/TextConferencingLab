@@ -16,6 +16,7 @@
 
 #include "client.h"
 #include "../constants.h" 
+#include "../ssl_common.h"
 
 #define STDIN 0
 
@@ -66,6 +67,10 @@ int main(int argc, char *argv[]) {
     FD_SET(STDIN, &master);
     int fdmax = STDIN;
     int ret = 0;
+
+    /*************************************************************************
+     * SSL will be done when logging in @TCP connection initiated
+     ************************************************************************/
     while (1) {
         read_fds = master; // copy it
         // If select returns -1 there was an error, 0 timeOut
@@ -83,8 +88,10 @@ int main(int argc, char *argv[]) {
         if (fdmax != STDIN) {
             // Check if there is something to be printed from the network socket
             if (FD_ISSET(status.sockfd, &read_fds)) {
-                Message* msg = receive_message(status.sockfd);
-                PRINT("%s: %s\n", msg->source, msg->data);
+                if (status.ssl != NULL) {
+                    Message* msg = receive_message(status.ssl);
+                    PRINT("%s: %s\n", msg->source, msg->data);
+                }
             }
         }
 

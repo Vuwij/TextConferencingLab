@@ -31,14 +31,6 @@
 #define COMM_LIST               "/list"
 #define COMM_QUIT               "/quit"
 
-#define H_COMM_LOGIN            36862910
-#define H_COMM_LOGOUT           153414711
-#define H_COMM_JOINSESSION      1838018493
-#define H_COMM_LEAVESESSION     3521579419
-#define H_COMM_CREATESESSION    3091944101
-#define H_COMM_LIST             2083414413
-#define H_COMM_QUIT             1790193820
-
 typedef enum {
     SERVER = 0,
     CLIENT1 = 1,

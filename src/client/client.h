@@ -6,6 +6,17 @@
 #include "../packet_type.h"
 #include "status.h"
 
+/* use these strings to tell the marker what is happening */
+#define FMT_CONNECT_ERR "CLIENT: SSL connect error\n"
+#define FMT_SERVER_INFO "CLIENT: %s %s %s\n"
+#define FMT_OUTPUT "CLIENT: %s %s\n"
+#define FMT_INCORRECT_CLOSE "CLIENT: Premature close\n"
+
+#define PASSWORD "password"
+#define KEY_FILE_PATH "alice.pem"
+#define EXPECTED_HOST_NAME "Bob's server"
+#define EXPECTED_SERVER_EMAIL "ece568bob@ecf.utoronto.ca"
+
 extern Status status;
 
 bool login(char* client_id, char* password, char* server_ip, int server_port);
@@ -24,18 +35,13 @@ bool quit();
 
 bool send_message(char* message);
 
-static unsigned long
-sdbm(str)
-unsigned char *str;
-{
-    unsigned long hash = 0;
-    int c;
 
-    while (c = *str++)
-        hash = c + (hash << 6) + (hash << 16) - hash;
+/*******************************************************************************
+ *  SSL Functions
+ ******************************************************************************/
+void verify_server_cert(SSL *ssl, char *host, char*email);
 
-    return hash;
-}
+static void clean_up(int sock, SSL *ssl);
 
 #endif /* CLIENT_H */
 

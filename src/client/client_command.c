@@ -64,6 +64,34 @@ bool login(char* client_id, char* password, char* server_ip, int server_port) {
         return false;
     }
 
+    /*************************************************************************
+     * SSL
+     ************************************************************************/
+    // Assuming from here on the TCP connection has been established
+    SSL_CTX *ctx;
+    BIO *sbio;
+
+    // Build our SSL context
+    ctx = initialize_ctx(KEY_FILE_PATH, PASSWORD);
+
+    /* Configuring SSL connection */
+    // Communicate via SSLv3 or TLSv1
+    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2);
+
+    // Set our cipher list
+    SSL_CTX_set_cipher_list(ctx, "SHA1");
+
+    // Connect the SSL socket
+    status.ssl = SSL_new(ctx);
+    sbio = BIO_new_socket(sockfd, BIO_NOCLOSE);
+    SSL_set_bio(status.ssl, sbio, sbio);
+
+    if (SSL_connect(status.ssl) <= 0)
+        berr_exit(FMT_CONNECT_ERR);
+
+    verify_server_cert(status.ssl, EXPECTED_HOST_NAME, EXPECTED_SERVER_EMAIL);
+
+
     char s[INET6_ADDRSTRLEN];
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *) p->ai_addr), s, sizeof s);
     freeaddrinfo(servinfo);
@@ -78,11 +106,11 @@ bool login(char* client_id, char* password, char* server_ip, int server_port) {
     strncpy(m.data, password, MAX_DATA);
 
     PRINT("Logging In\n");
-    deliver_message(&m, sockfd);
+    deliver_message(&m, status.ssl);
 
     Message* r;
-    r = receive_message(sockfd);
-    
+    r = receive_message(status.ssl);
+
     // Update Status with the client and server socket and port
     status.sockfd = sockfd;
     status.p = p;
@@ -93,7 +121,7 @@ bool login(char* client_id, char* password, char* server_ip, int server_port) {
         PRINT("Login Failed: %s", r->data);
         status.sockfd = -1;
     }
-    
+
     if (r->type == LO_ACK) {
         PRINT("Login Succeeded\n");
         strncpy(status.client_id, client_id, MAXBUFSIZE);
@@ -111,8 +139,8 @@ bool logout() {
     Message m;
     m.type = EXIT;
     strncpy(m.source, status.client_id, MAX_NAME);
-    deliver_message(&m, status.sockfd);
-    close(status.sockfd);
+    deliver_message(&m, status.ssl);
+    clean_up(status.sockfd, status.ssl);
     return true;
 }
 
@@ -123,10 +151,10 @@ bool join_session(char *session_name) {
     m.type = JOIN;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
     snprintf(m.data, MAX_DATA, "%s", session_name);
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, status.ssl);
 
     Message* r;
-    r = receive_message(status.sockfd);
+    r = receive_message(status.ssl);
     if (r->type == JN_NAK) {
         PRINT(r->data);
         free(r);
@@ -148,7 +176,7 @@ bool leave_session() {
     Message m;
     m.type = LEAVE_SESS;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, status.ssl);
 
     return true;
 }
@@ -160,10 +188,10 @@ bool create_session(char *session_id) {
     m.type = NEW_SESS;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
     snprintf(m.data, MAX_DATA, "%s", session_id);
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, status.ssl);
 
     Message* r;
-    r = receive_message(status.sockfd);
+    r = receive_message(status.ssl);
     if (r->type == NS_ACK) {
         PRINT("Session Created\n");
         join_session(session_id);
@@ -181,16 +209,16 @@ bool list() {
     Message m;
     m.type = QUERY;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, status.ssl);
 
     Message* r;
-    r = receive_message(status.sockfd);
-    
+    r = receive_message(status.ssl);
+
     if (r->type == QU_ACK)
         PRINT(r->data);
     else
         PRINT("Invalid packet %d\n", (int) r->type);
-    
+
     free(r);
 }
 
@@ -208,7 +236,52 @@ bool send_message(char* message) {
     m.type = MESSAGE;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
     strncpy(m.data, message, MAX_DATA);
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, status.ssl);
 
     return true;
+}
+
+/* This function free SSL context and close socket */
+static void clean_up(int sock, SSL *ssl) {
+    int r = SSL_shutdown(ssl);
+    if (!r) {
+        shutdown(sock, SHUT_WR);
+        r = SSL_shutdown(ssl);
+    }
+
+    if (r != 1)
+        err_exit(FMT_INCORRECT_CLOSE);
+
+    SSL_free(ssl);
+    close(sock);
+}
+
+/* Check that the common name and email matches the host name and email */
+void verify_server_cert(SSL *ssl, char *host, char *email) {
+    X509 *peer;
+    char peer_CN[256];
+    char peer_EM[256];
+    char issuer_CN[256];
+
+    if (SSL_get_verify_result(ssl) != X509_V_OK) {
+        berr_exit(FMT_NO_VERIFY);
+    }
+
+    /* Check the common name */
+    peer = SSL_get_peer_certificate(ssl);
+    X509_NAME_get_text_by_NID(X509_get_subject_name(peer),
+            NID_commonName, peer_CN, 256);
+
+    if (strcasecmp(peer_CN, host))
+        err_exit(FMT_CN_MISMATCH);
+
+    X509_NAME_get_text_by_NID(X509_get_subject_name(peer),
+            NID_pkcs9_emailAddress, peer_EM, 256);
+
+    if (strcasecmp(peer_EM, email))
+        err_exit(FMT_EMAIL_MISMATCH);
+
+    X509_NAME_get_text_by_NID(X509_get_issuer_name(peer),
+            NID_commonName, issuer_CN, 256);
+
 }
