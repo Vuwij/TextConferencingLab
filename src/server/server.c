@@ -212,7 +212,6 @@ void listen_for_messages() {
                         perror("recvfrom udp");
                         exit(1);
                     }
-
                     process_audio_packets(audiopacket, remoteaddr);
                 } else { // Received control port info
                     Message* msg = (Message*) malloc(sizeof (Message));
@@ -238,6 +237,7 @@ int main(int argc, char *argv[]) {
 
     // Obtain the Port Number
     port_c = atoi(argv[1]);
+    port_d = port_c + 1;
     if (!(MIN_PORTNUM <= port_c && port_c <= MAX_PORTNUM)) {
         fprintf(stderr, "port = %d should be within range [%d:%d]\n",
                 port_c, MIN_PORTNUM, MAX_PORTNUM);
@@ -245,11 +245,13 @@ int main(int argc, char *argv[]) {
     }
 
     // Open the audio listener socket
-    open_audio_socket(port_c + 1);
-    PRINT("Opened Data Port: %d\n", port_c + 1);
+    open_audio_socket(port_d);
+    PRINT("Opened Data Port: %d on socket %d\n", port_d, sockfd_d);
 
     // Open a server side socket
     open_server_socket(port_c);
+    PRINT("Opened Control Port: %d on socket %d\n", port_c, sockfd_c);
+    
     ctx = initialize_ctx(KEY_FILE_PATH, PASSWORD);
 
     // Configure SSL server to ask for client certificate

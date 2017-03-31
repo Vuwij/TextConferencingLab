@@ -377,5 +377,66 @@
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
+    <conf name="AudioTest" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+      </compileType>
+      <item path="src/audio_packet.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/audio_input.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/audio_input.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/audio_output.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/audio_output.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/client.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/client/client_command.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/client/status.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/constants.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/message.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/message.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/packet_type.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/print_debug.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/audio_port.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/message_handle.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/server.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/session_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/session_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/server/voice_queue.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
   </confs>
 </configurationDescriptor>

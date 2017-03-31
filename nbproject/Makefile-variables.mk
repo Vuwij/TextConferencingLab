@@ -46,6 +46,14 @@ CND_ARTIFACT_PATH_Client_Valgrind=dist/Client_Valgrind/GNU-Linux/textconferencin
 CND_PACKAGE_DIR_Client_Valgrind=dist/Client_Valgrind/GNU-Linux/package
 CND_PACKAGE_NAME_Client_Valgrind=textconferencinglab.tar
 CND_PACKAGE_PATH_Client_Valgrind=dist/Client_Valgrind/GNU-Linux/package/textconferencinglab.tar
+# AudioTest configuration
+CND_PLATFORM_AudioTest=GNU-Linux
+CND_ARTIFACT_DIR_AudioTest=dist/AudioTest/GNU-Linux
+CND_ARTIFACT_NAME_AudioTest=textconferencinglab
+CND_ARTIFACT_PATH_AudioTest=dist/AudioTest/GNU-Linux/textconferencinglab
+CND_PACKAGE_DIR_AudioTest=dist/AudioTest/GNU-Linux/package
+CND_PACKAGE_NAME_AudioTest=textconferencinglab.tar
+CND_PACKAGE_PATH_AudioTest=dist/AudioTest/GNU-Linux/package/textconferencinglab.tar
 #
 # include compiler specific variables
 #

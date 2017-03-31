@@ -27,6 +27,10 @@ Session* open_session(char *id) {
     strcpy(new_session->session.id, id);
     new_session->session.fd_max = -1;
     new_session->session.num_user = 0;
+    for(int i = 0; i < MAX_USERS_PER_SESSION; i++) {
+        new_session->session.vpq[i] = NULL;
+    }
+    
     FD_ZERO(&new_session->session.client_fds);
     int i;
     for (i = 0; i < MAX_USERS_PER_SESSION; i++)

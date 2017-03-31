@@ -298,13 +298,13 @@ bool start_call() {
 
     Message* r;
     r = receive_message(status.ssl);
-
-    if (r->type == ST_CONF_NCK) {
-        PRINT(r->data);
+    PRINT(r->data);
+    
+    if (r->type == ST_CONF_NCK) {    
         free(r);
         return false;
     }
-
+    
     PRINT("Call Started, Joining call\n");
     free(r);
 
