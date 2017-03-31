@@ -94,17 +94,15 @@ int main(int argc, char *argv[]) {
             if (FD_ISSET(status.sockfd, &read_fds)) {
                 if (status.ssl != NULL) {
                     Message* msg = receive_message(status.ssl);
+                    
+                    if (msg->type == ST_CONF_INIT) {
+                        join_call();
+                        continue;
+                    }
+
                     PRINT("%s: %s\n", msg->source, msg->data);
+                    free(msg);
                 }
-                Message* msg = receive_message(status.ssl);
-
-                if (msg->type == ST_CONF_INIT) {
-                    join_call();
-                    continue;
-                }
-
-                PRINT("%s: %s\n", msg->source, msg->data);
-                free(msg);
             }
             // Check if there is a voice packet to be played
             if (FD_ISSET(status.voicefd, &read_fds)) {
