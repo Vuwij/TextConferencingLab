@@ -35,7 +35,7 @@
 #define FMT_INCOMPLETE_CLOSE "SERVER: Incomplete shutdown\n"
 
 #define PASSWORD "password"
-#define KEY_FILE_PATH "bob.pem"
+#define KEY_FILE_PATH "certificate/bob.pem"
 #define EXPECTED_HOST_NAME "Alice's client"
 #define EXPECTED_CLIENT_EMAIL "ece568alice@ecf.utoronto.ca"
 

@@ -15,7 +15,7 @@
 #define FMT_INCORRECT_CLOSE "CLIENT: Premature close\n"
 
 #define PASSWORD "password"
-#define KEY_FILE_PATH "alice.pem"
+#define KEY_FILE_PATH "certificate/alice.pem"
 #define EXPECTED_HOST_NAME "Bob's server"
 #define EXPECTED_SERVER_EMAIL "ece568bob@ecf.utoronto.ca"
 

@@ -30,7 +30,7 @@
 #include <openssl/ssl.h>
 
 #define BUFSIZZ 256
-#define CA_LIST "568ca.pem"
+#define CA_LIST "certificate/568ca.pem"
 #define HOST "localhost"
 
 #define FMT_CN_MISMATCH "ECE568-CLIENT: Server Common Name doesn't match\n"
