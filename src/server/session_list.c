@@ -190,31 +190,34 @@ void start_call(Session* session) {
     Message m, *r;
     m.type = ST_CONF_INIT;
     strcpy(m.data, "Begin Call ACK\n");
-    
-    for(int i = 0; i <= session->fd_max; i++) {
-        if(FD_ISSET(i, &session->client_fds)) {
+
+    for (int i = 0; i <= session->fd_max; i++) {
+        if (FD_ISSET(i, &session->client_fds)) {
             PRINT("Call Req %d\n", i);
-            deliver_message(&m, i);
+            User_List* temp = find_active_user_fd(i);
+            deliver_message(&m, temp->ssl);
         }
     }
-    for(int i = 0; i <= session->fd_max; i++) {
-        if(FD_ISSET(i, &session->client_fds)) {
-            r = receive_message(i);
-            if(r->type == ST_CONF_INIT_ACK) {
+    for (int i = 0; i <= session->fd_max; i++) {
+        if (FD_ISSET(i, &session->client_fds)) {
+            User_List* temp = find_active_user_fd(i);
+            r = receive_message(temp->ssl);
+            if (r->type == ST_CONF_INIT_ACK) {
                 PRINT("Confirmed\n", i);
             }
         }
     }
     // Send it again to start
-    for(int i = 0; i <= session->fd_max; i++) {
-        if(FD_ISSET(i, &session->client_fds)) {
-            deliver_message(&m, i);
+    for (int i = 0; i <= session->fd_max; i++) {
+        if (FD_ISSET(i, &session->client_fds)) {
+            User_List* temp = find_active_user_fd(i);
+            deliver_message(&m, temp->ssl);
         }
     }
 }
 
 void end_call(Session* session) {
     // Send clients TCP message telling them to close UDP ports
-    
+
     // Hear client TCP reply, then close the session
 }

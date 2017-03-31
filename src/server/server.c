@@ -20,10 +20,13 @@
 #include "../audio_packet.h"
 
 SSL_CTX *ctx;
-int port;
+
 fd_set master; // master file descriptor list
-int sockfd;
-AddrInfo *p;
+int sockfd_c;
+int port_c;
+
+
+bool control_fd[MAX_FD_NUM] = {0};
 
 struct timeval tv = {
     .tv_sec = 1,
@@ -152,7 +155,7 @@ void listen_for_messages() {
 
     FD_SET(sockfd_c, &master); // add the Control listener to the master set
     FD_SET(sockfd_d, &master); // add the Data listener to the master set
-    
+
     int fdmax = sockfd_c > sockfd_d ? sockfd_c : sockfd_d;
 
     struct sockaddr_storage remoteaddr; // client address
@@ -169,12 +172,10 @@ void listen_for_messages() {
 
         for (int i = 0; i <= fdmax; i++) {
             if (FD_ISSET(i, &read_fds)) {
-
-                if (i == sockfd_c) { // Received a data from the control port
-            if (FD_ISSET(i, &read_fds)) { // we got one!!
                 SSL *ssl;
-                // New Connections
-                if (i == sockfd) {
+                if (i == sockfd_c) { // Received a data from the control port
+
+                    // New Connections
                     socklen_t addrlen = sizeof remoteaddr;
                     int newfd = accept(sockfd_c,
                             (struct sockaddr *) &remoteaddr, &addrlen);
@@ -201,21 +202,19 @@ void listen_for_messages() {
                         verify_client_cert(ssl, EXPECTED_HOST_NAME, EXPECTED_CLIENT_EMAIL);
 
                     }
-                }
-                else if (i == sockfd_d) { // Received a data from the data port
+                } else if (i == sockfd_d) { // Received a data from the data port
                     // Add UDP socket into the fd list
-                    AudioPacket* audiopacket = (AudioPacket*) malloc(sizeof(AudioPacket));
+                    AudioPacket* audiopacket = (AudioPacket*) malloc(sizeof (AudioPacket));
                     socklen_t addrlen = sizeof remoteaddr;
-                    
+
                     if ((nbytes = recvfrom(sockfd_d, audiopacket, sizeof (AudioPacket), 0,
                             (struct sockaddr *) &remoteaddr, &addrlen)) == -1) {
                         perror("recvfrom udp");
                         exit(1);
                     }
-                    
+
                     process_audio_packets(audiopacket, remoteaddr);
-                }
-                else { // Received control port info
+                } else { // Received control port info
                     Message* msg = (Message*) malloc(sizeof (Message));
                     if ((nbytes = SSL_read(ssl, msg, sizeof (Message))) <= 0) {
                         // got error or connection closed by client
@@ -238,19 +237,19 @@ int main(int argc, char *argv[]) {
     if (argc != 2) usage(argv[0]);
 
     // Obtain the Port Number
-    port = atoi(argv[1]);
-    if (!(MIN_PORTNUM <= port && port <= MAX_PORTNUM)) {
+    port_c = atoi(argv[1]);
+    if (!(MIN_PORTNUM <= port_c && port_c <= MAX_PORTNUM)) {
         fprintf(stderr, "port = %d should be within range [%d:%d]\n",
-                port, MIN_PORTNUM, MAX_PORTNUM);
+                port_c, MIN_PORTNUM, MAX_PORTNUM);
         usage(argv[0]);
     }
-    
+
     // Open the audio listener socket
     open_audio_socket(port_c + 1);
     PRINT("Opened Data Port: %d\n", port_c + 1);
-    
+
     // Open a server side socket
-    open_server_socket(port);
+    open_server_socket(port_c);
     ctx = initialize_ctx(KEY_FILE_PATH, PASSWORD);
 
     // Configure SSL server to ask for client certificate
@@ -265,7 +264,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-static void clean_up(int s, int sock, SSL * ssl) {
+void clean_up(int s, int sock, SSL * ssl) {
     int r = SSL_shutdown(ssl);
     if (!r) {
         shutdown(s, SHUT_WR);

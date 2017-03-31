@@ -20,6 +20,8 @@ typedef struct user_list {
     char session_id[MAXDATASIZE];
     int fd;
     SSL *ssl;
+    struct sockaddr_storage* udp_addr;
+
     struct user_list *next;
 } User_List;
 

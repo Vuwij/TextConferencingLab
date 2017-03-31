@@ -90,11 +90,11 @@ void dequeue_audio_packets(Session* s) {
     int num_user = s->num_user;
     t_packet.start_time = vpq[0]->p->start_time;
     t_packet.packet_num = vpq[0]->p->packet_num;
-    
+
     for (int j = 0; j < PACKET_SIZE; j++) {
         t_packet.data[j] = vpq[j % num_user]->p->data[j];
     }
-    
+
     // Send the t_packet to everyone in the session
     int numbytes;
     for (int i = 0; i < s->num_user; i++) {
@@ -119,16 +119,16 @@ void dequeue_audio_packets(Session* s) {
 void process_audio_packets(AudioPacket* packet, struct sockaddr_storage theiraddr) {
 
     // Find the user and session_id associated with the packet
-    if(packet->source == NULL) return;
+    if (packet->source == NULL) return;
     char* client_id = packet->source;
     User_List* user_l = find_active_user(packet->source);
     //PRINT("%s %d\n\n",packet->source, packet->packet_num);
     if (user_l->udp_addr == NULL) user_l->udp_addr = &theiraddr;
     char* sess_id = user_l->session_id;
     Session* session = find_session(sess_id);
-    
+
     //PRINT("R %s-%d\n",packet->source, packet->packet_num);
-    
+
     // Enqueue the audio packet
     for (int i = 0; i < session->num_user; i++) {
         // Find the correct session for the user
@@ -148,11 +148,11 @@ void process_audio_packets(AudioPacket* packet, struct sockaddr_storage theiradd
             head->next = (VoicePacketQueue*) malloc(sizeof (VoicePacketQueue));
             head->next->p = packet;
             head->next->next = NULL;
-            
+
             break;
         }
     }
-    
+
     // Check if the VPQ has all users's packets
     bool dequeue_audio = true;
     for (int i = 0; i < session->num_user; i++) {

@@ -169,7 +169,7 @@ void send_buffer_to_output() {
             return;
         }
     }
-    
+
     //PRINT("%d\n", frames_to_deliver);
     frames_to_deliver = frames_to_deliver > PACKET_SIZE ? PACKET_SIZE : frames_to_deliver;
 

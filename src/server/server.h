@@ -40,15 +40,16 @@
 #define EXPECTED_CLIENT_EMAIL "ece568alice@ecf.utoronto.ca"
 
 typedef struct addrinfo AddrInfo;
+
 // Master file descriptor list
 extern fd_set master;
 extern bool control_fd[MAX_FD_NUM];
 
 // Control Port information
-extern int port_c;  // TCP Control Port
+extern int port_c; // TCP Control Port
 extern int sockfd_c;
 
-extern int port_d;  // UDP Data Port
+extern int port_d; // UDP Data Port
 extern int sockfd_d;
 extern AddrInfo *audio_port;
 

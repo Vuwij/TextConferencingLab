@@ -125,10 +125,6 @@
       </item>
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/ssl_common.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/ssl_common.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="src/server/voice_queue.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
@@ -192,10 +188,6 @@
       <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="src/ssl_common.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/ssl_common.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="AutoTester" type="1">
@@ -266,10 +258,6 @@
       </item>
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/ssl_common.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/ssl_common.h" ex="false" tool="3" flavor2="0">
-      </item>
     </conf>
     <conf name="Server-Valgrind" type="1">
       <toolsSet>
@@ -329,10 +317,6 @@
       </item>
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="src/ssl_common.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/ssl_common.h" ex="false" tool="3" flavor2="0">
-      </item>
     </conf>
     <conf name="Client_Valgrind" type="1">
       <toolsSet>
@@ -391,10 +375,6 @@
       <item path="src/server/user_list.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/server/user_list.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="src/ssl_common.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/ssl_common.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

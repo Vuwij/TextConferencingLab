@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
                     Message* msg = receive_message(status.ssl);
                     PRINT("%s: %s\n", msg->source, msg->data);
                 }
-                Message* msg = receive_message(status.sockfd);
+                Message* msg = receive_message(status.ssl);
 
                 if (msg->type == ST_CONF_INIT) {
                     join_call();
@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
             if (FD_ISSET(status.voicefd, &read_fds)) {
                 int numbytes;
                 pthread_mutex_lock(&udp_port_lock);
-                if ((numbytes = recvfrom(status.voicefd, &outpacket, sizeof(AudioPacket), 0,
+                if ((numbytes = recvfrom(status.voicefd, &outpacket, sizeof (AudioPacket), 0,
                         (struct sockaddr *) status.udp->ai_addr, &status.udp->ai_addrlen)) == -1) {
                     perror("c: recvfrom");
                     exit(1);

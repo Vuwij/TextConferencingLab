@@ -84,24 +84,24 @@ void *capture(void *t) {
 
         // Update the start time
         gettimeofday(&audiopacket.start_time, NULL);
-        
+
         if ((err = snd_pcm_readi(capture_handle, &audiopacket.data, AUDIO_PACKET_S)) != AUDIO_PACKET_S) {
             fprintf(stderr, "read from audio interface failed (%s)\n",
                     snd_strerror(err));
             exit(1);
         }
-        
+
         // Update the end time
         gettimeofday(&audiopacket.end_time, NULL);
-       
+
         // Increase the number of the packet
         audiopacket.packet_num++;
-        
-        
-//        long long start_mill = (audiopacket.start_time.tv_sec) * 1000 + (audiopacket.start_time.tv_usec) / 1000;
-//        long long end_mill = (audiopacket.end_time.tv_sec) * 1000 + (audiopacket.end_time.tv_usec) / 1000;
+
+
+        //        long long start_mill = (audiopacket.start_time.tv_sec) * 1000 + (audiopacket.start_time.tv_usec) / 1000;
+        //        long long end_mill = (audiopacket.end_time.tv_sec) * 1000 + (audiopacket.end_time.tv_usec) / 1000;
         PRINT("S %u\n", audiopacket.packet_num);
-//        
+        //        
         pthread_mutex_lock(&udp_port_lock);
         if ((numbytes = sendto(status.voicefd, &audiopacket, sizeof (audiopacket.data), 0,
                 status.udp->ai_addr, status.udp->ai_addrlen)) == -1) {
@@ -124,7 +124,7 @@ void open_capture() {
     long t = 1;
     stop_capture = false;
     audiopacket.packet_num = 0; // The first packet
-    
+
     // Define the source of the sender
     strcpy(audiopacket.source, status.client_id);
 

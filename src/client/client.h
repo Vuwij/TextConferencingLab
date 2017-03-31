@@ -39,16 +39,17 @@ bool quit();
 
 bool send_message(char* message);
 
+bool start_call();
+
+bool join_call();
 
 /*******************************************************************************
  *  SSL Functions
  ******************************************************************************/
 void verify_server_cert(SSL *ssl, char *host, char*email);
 
-static void clean_up(int sock, SSL *ssl);
-bool start_call();
+void clean_up(int sock, SSL *ssl);
 
-bool join_call();
 
 #endif /* CLIENT_H */
 

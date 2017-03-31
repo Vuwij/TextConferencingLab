@@ -76,8 +76,7 @@ void exitserver(Message* msg, int fd) {
     bool deleteSuccess = delete_user(user->user->id);
     if (!deleteSuccess) {
         fprintf(stderr, "ERROR: unable to delete user with id %d", user->user->id);
-    }
-    else {
+    } else {
         control_fd[fd] = false;
         close(fd);
     }
@@ -95,17 +94,17 @@ void join(Message* msg, int fd) {
 
     if (user == NULL) {
         r.type = JN_NAK;
-        strncpy(r.data, "User Invalid\n", strlen("User Invalid\n"));
+        strcpy(r.data, "User Invalid\n");
         assert(0); //I believe this doesn't ever occur or should never occur
     } else if (session == NULL) {
         r.type = JN_NAK;
-        strncpy(r.data, "Session Doesn't Exist\n", strlen("Session Doesn't Exist\n"));
+        strcpy(r.data, "Session Doesn't Exist\n");
     } else if (strcmp(user->session_id, "") != 0) {
         r.type = JN_NAK;
-        strncpy(r.data, "Joined Session Already\n", strlen("Joined Session Already\n"));
+        strcpy(r.data, "Joined Session Already\n");
     } else {
         r.type = JN_ACK;
-        strncpy(r.data, msg->data, sizeof (msg->data));
+        strcpy(r.data, msg->data);
 
         // Add user to the session and vice versa
         strcpy(user->session_id, session_id);
@@ -158,7 +157,7 @@ void new_sess(Message* msg, int fd) {
     Session* session = find_session(session_id);
     Message r;
     if (session != NULL) {
-        strncpy(r.data, "Session Already Exists\n", strlen("Session Already Exists\n"));
+        strcpy(r.data, "Session Already Exists\n");
         r.type = NS_NAK;
     } else {
         PRINT("Session %s added\n", session_id);
@@ -228,22 +227,23 @@ void handle_start_call(Message* msg, int fd) {
     // If the user has not joined the session
     if (strcmp(session_id, "") == 0)
         return;
-    
+
     Session* session = find_session(session_id);
     assert(session != NULL);
-    
+
     // Send a reply to the original sender
     Message m;
     m.type = ST_CONF_ACK;
-    deliver_message(&m, fd);
-    
+    User_List *temp = find_active_user_fd(fd);
+    deliver_message(&m, temp->ssl);
+
     // Send notification to other connected users that a voice conference is starting
     start_call(session);
 }
 
 void handle_end_call(Message* msg, int fd) {
     PRINT("Ending call\n");
-    
+
     char *id = msg->source;
 
     // Find the user associated
@@ -258,7 +258,7 @@ void handle_end_call(Message* msg, int fd) {
 
     Session* session = find_session(session_id);
     assert(session != NULL);
-    
+
     end_call(session);
 }
 

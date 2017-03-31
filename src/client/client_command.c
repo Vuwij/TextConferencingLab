@@ -244,7 +244,7 @@ bool send_message(char* message) {
 }
 
 /* This function free SSL context and close socket */
-static void clean_up(int sock, SSL *ssl) {
+void clean_up(int sock, SSL *ssl) {
     int r = SSL_shutdown(ssl);
     if (!r) {
         shutdown(sock, SHUT_WR);
@@ -287,16 +287,17 @@ void verify_server_cert(SSL *ssl, char *host, char *email) {
             NID_commonName, issuer_CN, 256);
 
 }
+
 bool start_call() {
     PRINT("Starting Call\n");
 
     Message m;
     m.type = ST_CONF;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, status.ssl);
 
     Message* r;
-    r = receive_message(status.sockfd);
+    r = receive_message(status.ssl);
 
     if (r->type == ST_CONF_NCK) {
         PRINT(r->data);
@@ -357,18 +358,18 @@ bool join_call() {
     Message m;
     m.type = ST_CONF_INIT_ACK;
     snprintf(m.source, MAX_NAME, "%s", status.client_id);
-    deliver_message(&m, status.sockfd);
+    deliver_message(&m, status.ssl);
 
     Message* r;
-    r = receive_message(status.sockfd);
-    
+    r = receive_message(status.ssl);
+
     // Start the capture and send thread
     open_capture();
-    
+
     // Start receiving everything
     FD_SET(status.voicefd, &master);
     fdmax = fdmax > status.voicefd ? fdmax : status.voicefd;
-    
+
     free(r);
     return true;
 }

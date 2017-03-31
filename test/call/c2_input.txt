@@ -1,3 +1,2 @@
-/login User2 User2 ug223 5007
-/joinsession 1
-/startcall
+/login User2 User2 ug147 5007
+/createsession 2
