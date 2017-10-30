@@ -2,7 +2,7 @@
 
 #### Authors
 ###### Jason Wang, 1001250569, jiashen.wang@mail.utoronto.ca
-###### Seunghyun Cho, 1001681325, sherwin.cho@mail.utoronto.ca
+###### Seunghyun Cho, 1001681325, chos.pey@gmail.com
 
 
 This is a simple voice-conferencing project using ALSA and openSSL libraries. We used the UDP and the TCP ports to be able to support up to 100 clients
